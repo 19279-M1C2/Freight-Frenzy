@@ -5,7 +5,6 @@ repositories {
     flatDir {
         dirs rootProject.file('libs')
     }
-
 }
 
 dependencies {
@@ -21,4 +20,3 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'org.firstinspires.ftc:gameAssets-FreightFrenzy:1.0.0'
 }
-
