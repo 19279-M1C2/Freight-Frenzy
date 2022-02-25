@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.components
 
+import com.amarcolini.joos.command.AbstractComponent
 import com.amarcolini.joos.control.PIDCoefficients
 import com.amarcolini.joos.control.PIDFController
 import com.amarcolini.joos.geometry.Pose2d
@@ -19,7 +20,7 @@ class DiffSwerve(
         ).minOf { it.maxRPM }),
     translationalPIDEff: PIDCoefficients = PIDCoefficients(1.0, 0.0, 0.5),
     headingPIDEff: PIDCoefficients = PIDCoefficients(1.0, 0.0, 0.5)
-) {
+) : AbstractComponent() {
     //) {
     private val motors = listOf(leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor)
     private val leftModule = Pair(leftFrontMotor, leftBackMotor)
@@ -72,8 +73,7 @@ class DiffSwerve(
 
     private fun getEncoderDrift() = getModulePositions()[0] - getModulePositions()[1]
 
-    fun update() {
+    override fun update() {
         motors.forEach { it.update() }
-
     }
 }

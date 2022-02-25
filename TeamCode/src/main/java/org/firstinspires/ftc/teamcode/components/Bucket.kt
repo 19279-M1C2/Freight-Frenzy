@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.components
 
 import com.amarcolini.joos.command.AbstractComponent
 import com.amarcolini.joos.command.Command
 import com.amarcolini.joos.hardware.Servo
+import com.amarcolini.joos.command.SequentialCommand
 
 /**
  * This bucket class controls a mock bucket. It extends AbstractComponents and adds some methods such as close and open
@@ -29,7 +30,6 @@ class Bucket(private val servo: Servo) : AbstractComponent() {
      * @param pos set the pos of the bucket
      */
     fun setPosition(pos: Double): Command = Command.of {
-        // this part of the command runs every tick
         update()
     }.onInit {
         // this runs when the command starts
