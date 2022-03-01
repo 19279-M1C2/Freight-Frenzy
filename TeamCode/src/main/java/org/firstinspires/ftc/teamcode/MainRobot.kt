@@ -5,9 +5,7 @@ import com.amarcolini.joos.command.Robot
 import com.amarcolini.joos.command.RobotOpMode
 import com.amarcolini.joos.hardware.Motor
 import com.amarcolini.joos.hardware.Servo
-import org.firstinspires.ftc.teamcode.components.Arm
-import org.firstinspires.ftc.teamcode.components.Folds
-import org.firstinspires.ftc.teamcode.components.Mount
+import org.firstinspires.ftc.teamcode.components.arm.*
 
 
 class MainRobot(opMode: RobotOpMode<MainRobot>, private val mode: OpMode) : Robot(opMode) {
@@ -32,17 +30,21 @@ class MainRobot(opMode: RobotOpMode<MainRobot>, private val mode: OpMode) : Robo
         folds = Folds(Servo(hMap, Constants.FIRST_FOLD_NAME), Servo(hMap, Constants.SECOND_FOLD_NAME))
         mount =
             Mount(
-                Motor(
-                    hMap,
-                    Constants.MOUNT_SPIN_NAME,
-                    6000.0,
-                    Constants.ULTRAPLANATRY_TICKS * Constants.MOUNT_SPIN_RATIO
+                MountSpin(
+                    Motor(
+                        hMap,
+                        Constants.MOUNT_SPIN_NAME,
+                        6000.0,
+                        Constants.ULTRAPLANATRY_TICKS * Constants.MOUNT_SPIN_RATIO
+                    )
                 ),
-                Motor(
-                    hMap,
-                    Constants.MOUNT_HEIGHT_NAME,
-                    6000.0,
-                    Constants.ULTRAPLANATRY_TICKS * Constants.MOUNT_HEIGHT_RATIO
+                MountHeight(
+                    Motor(
+                        hMap,
+                        Constants.MOUNT_HEIGHT_NAME,
+                        6000.0,
+                        Constants.ULTRAPLANATRY_TICKS * Constants.MOUNT_HEIGHT_RATIO
+                    )
                 )
             )
 
@@ -61,12 +63,14 @@ class MainRobot(opMode: RobotOpMode<MainRobot>, private val mode: OpMode) : Robo
             // we could also just call other functions here and split code
             TODO("TeleOp")
         } else if (mode == OpMode.Auto) {
-            Command.of {
-                folds.setFirstAngle(180.0)
-                folds.setSecondAngle(180.0)
-                mount.Height().setAngle(180.0)
-            }.requires(
-                folds, mount
+            // expands the arm for whatever we want to do
+            schedule(
+                folds.setFirstAngle(180.0) then folds.setSecondAngle(180.0) then mount.height.setAngle(180.0)
+            )
+
+            // TODO write auto detection code and set angle accordingly
+            schedule(
+                arm.setHeightAngle(45.0)
             )
 
 

@@ -17,6 +17,8 @@ object Constants {
     const val MOUNT_HEIGHT_NAME = "mount-height-name"
     const val MOUNT_SPIN_RATIO = 4.0
     const val MOUNT_HEIGHT_RATIO = 4.0
+    const val MOUNT_SPIN_SPEED = 0.2
+    const val MOUNT_HEIGHT_SPEED = 0.2
 
     const val ULTRAPLANATRY_TICKS = 28.0
 }
