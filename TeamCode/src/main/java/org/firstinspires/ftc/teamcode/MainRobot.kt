@@ -8,18 +8,12 @@ import com.amarcolini.joos.hardware.Servo
 import org.firstinspires.ftc.teamcode.components.arm.*
 
 
-class MainRobot(opMode: RobotOpMode<MainRobot>, private val mode: OpMode) : Robot(opMode) {
-
-    // we can create different op modes using this
-    enum class OpMode {
-        TeleOp,
-        Auto,
-    }
+class MainRobot(private val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
 
     // declare your motors and sensors here. CRS, Servos, DC, Drivetrain
-    private lateinit var folds: Folds
-    private lateinit var mount: Mount
-    private lateinit var arm: Arm
+    lateinit var folds: Folds
+    lateinit var mount: Mount
+    lateinit var arm: Arm
 
     /**
      * [init] runs when the robot is in init.
@@ -58,23 +52,6 @@ class MainRobot(opMode: RobotOpMode<MainRobot>, private val mode: OpMode) : Robo
      * This runs whenever the robot starts. It is automatically called by the teleOp
      */
     override fun start() {
-        // this is used to tell if we are running auto or teleop or other Op modes.
-        if (mode == OpMode.TeleOp) {
-            // we could also just call other functions here and split code
-            TODO("TeleOp")
-        } else if (mode == OpMode.Auto) {
-            // expands the arm for whatever we want to do
-            schedule(
-                folds.setFirstAngle(180.0) then folds.setSecondAngle(180.0) then mount.height.setAngle(180.0)
-            )
-
-            // TODO write auto detection code and set angle accordingly
-            schedule(
-                arm.setHeightAngle(45.0)
-            )
-
-
-        }
 
     }
 }

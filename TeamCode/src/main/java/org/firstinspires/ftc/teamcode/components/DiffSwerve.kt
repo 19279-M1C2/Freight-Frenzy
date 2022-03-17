@@ -46,7 +46,7 @@ class DiffSwerve(
         // figure out what these PIDs output, if they are negatives between 0.5 and -0.5 then normalize them or whatever.
         // looks like we can bind the output?
 
-        modules.zip(headingAdjust.toList()).forEach { (module, heading) ->
+        modules.zip(headingAdjust).forEach { (module, heading) ->
             val (f, s) = module
             // get propper powers here
             // we need it so that translation adjust is different for each module
