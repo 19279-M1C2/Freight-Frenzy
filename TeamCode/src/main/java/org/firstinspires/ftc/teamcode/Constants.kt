@@ -21,4 +21,10 @@ object Constants {
     const val MOUNT_HEIGHT_SPEED = 0.2
 
     const val ULTRAPLANATRY_TICKS = 28.0
+
+    const val DRIVE_LEFT_A_NAME = "drive-left-a"
+    const val DRIVE_LEFT_B_NAME = "drive-left-b"
+    const val DRIVE_RIGHT_A_NAME = "drive-right-a"
+    const val DRIVE_RIGHT_B_NAME = "drive-right-b"
+    const val TRACK_WIDTH: Inch = 16.0
 }

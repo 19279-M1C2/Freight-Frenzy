@@ -8,6 +8,6 @@ class MainTeleOp : RobotOpMode<MainRobot>() {
     // this is all you need to do for an op mode.
     override fun init() {
         // make sure to set it as the right TeleOp
-        initialize(MainRobot(this))
+        initialize(MainRobot(this, MainRobot.Mode.TeleOpMain))
     }
 }
