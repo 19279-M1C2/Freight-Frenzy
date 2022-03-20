@@ -13,6 +13,7 @@ import com.amarcolini.joos.hardware.drive.DriveComponent
 import com.amarcolini.joos.localization.Localizer
 import com.amarcolini.joos.trajectory.config.GenericConstraints
 import com.amarcolini.joos.trajectory.config.TrajectoryConstraints
+import org.firstinspires.ftc.teamcode.Constants
 import kotlin.math.PI
 
 /**
@@ -20,23 +21,32 @@ import kotlin.math.PI
  * @param trackWidth the distance between the two modules
  * @param translationalPID translation controller for the trajectory follower
  * @param headingPID heading controller for trajectory follower
+ * @param modulePID PID for the swerve modules themselves
+ * @param feedforwardCoefficients the feedforward coeffs for the motors
  * @param constraints The constraints for the drive
- * @param gearRatio The gear ratio from one of the motors to the wheel shift
+ * @param gearRatio The gear ratio from one of the motors to the wheel shaft
  * @param ticksPerRev The tickets per rev of each module
  * @param wheelRadius The radius of each wheel
  */
 class DifferentialSwerveDrive(
     private val leftMotorA: Motor, private val leftMotorB: Motor,
     private val rightMotorA: Motor, private val rightMotorB: Motor,
-    private val trackWidth: Double,
     override val imu: Imu? = null,
+
+    // All the drive base constants
+    private val trackWidth: Double = Constants.Module.TRACK_WIDTH,
+    private val gearRatio: Double = Constants.Module.GEAR_RATIO,
+    private val ticksPerRev: Double = Constants.Module.TICKS_PER_REV,
+    private val wheelRadius: Double = Constants.Module.WHEEL_RADIUS,
+
+    // Motor Tuning
+    modulePID: PIDCoefficients = PIDCoefficients(4.0, 0.0, 0.1),
+    feedforwardCoefficients: FeedforwardCoefficients = FeedforwardCoefficients(),
+
+    // All the things to do with trajectory following
+    override val constraints: TrajectoryConstraints = GenericConstraints(),
     translationalPID: PIDCoefficients = PIDCoefficients(1.0, 0.0, 0.5),
     headingPID: PIDCoefficients = PIDCoefficients(1.0, 0.0, 0.5),
-    modulePID: PIDCoefficients = PIDCoefficients(4.0, 0.0, 0.1),
-    override val constraints: TrajectoryConstraints = GenericConstraints(),
-    private val gearRatio: Double = 1.0,
-    private val ticksPerRev: Double = 100.0,
-    private val wheelRadius: Double = 2.0,
 ) : DriveComponent() {
     /*
      * Note that a motor A corresponds to the motor that spins the same direction as the wheel,
@@ -68,8 +78,7 @@ class DifferentialSwerveDrive(
 
         motors.forEach {
             it.distancePerRev = 2 * PI * wheelRadius * gearRatio
-            //TODO: tune feedforward for motors
-            it.feedforwardCoefficients = FeedforwardCoefficients()
+            it.feedforwardCoefficients = feedforwardCoefficients
         }
     }
 

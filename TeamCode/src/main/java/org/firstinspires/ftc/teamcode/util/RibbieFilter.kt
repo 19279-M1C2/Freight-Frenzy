@@ -37,7 +37,7 @@ class RibbieFilter(
      * @return an estimated "true" value for the position
      */
     fun update(sensor: List<Double>): Double {
-        val averageSensor = AdvMath.weightedAverage(sensor, confidence)
+        val averageSensor = weightedAverage(sensor, confidence)
 
         for (i in sensor.indices) {
             val offset = abs(averageSensor - sensor[i]) / averageSensor
@@ -56,7 +56,7 @@ class RibbieFilter(
 
         // val averageConfidence = confidence.average()
 
-        return AdvMath.weightedAverage(sensor, confidence)
+        return weightedAverage(sensor, confidence)
     }
 
     /**
