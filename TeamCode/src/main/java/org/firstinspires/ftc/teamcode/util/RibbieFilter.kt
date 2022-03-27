@@ -65,6 +65,4 @@ class RibbieFilter(
      * @return a list of confidences, same order as the sensors
      */
     fun getConfidences() = confidence.toList()
-
-
 }

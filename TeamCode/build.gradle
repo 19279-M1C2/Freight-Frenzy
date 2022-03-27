@@ -15,6 +15,6 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 }
 
 dependencies {
-//    implementation project(':FtcRobotController')
-//    annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
+    implementation project(':FtcRobotController')
+    annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 }

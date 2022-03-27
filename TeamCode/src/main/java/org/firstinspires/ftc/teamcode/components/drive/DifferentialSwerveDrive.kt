@@ -11,9 +11,9 @@ import com.amarcolini.joos.hardware.Imu
 import com.amarcolini.joos.hardware.Motor
 import com.amarcolini.joos.hardware.drive.DriveComponent
 import com.amarcolini.joos.localization.Localizer
-import com.amarcolini.joos.trajectory.config.GenericConstraints
 import com.amarcolini.joos.trajectory.config.TrajectoryConstraints
-import org.firstinspires.ftc.teamcode.Constants
+import org.firstinspires.ftc.teamcode.Coefficients
+import org.firstinspires.ftc.teamcode.Module
 import kotlin.math.PI
 
 /**
@@ -34,19 +34,19 @@ class DifferentialSwerveDrive(
     override val imu: Imu? = null,
 
     // All the drive base constants
-    private val trackWidth: Double = Constants.Module.TRACK_WIDTH,
-    private val gearRatio: Double = Constants.Module.GEAR_RATIO,
-    private val ticksPerRev: Double = Constants.Module.TICKS_PER_REV,
-    private val wheelRadius: Double = Constants.Module.WHEEL_RADIUS,
+    private val trackWidth: Double = Module.TRACK_WIDTH,
+    private val gearRatio: Double = Module.GEAR_RATIO,
+    private val ticksPerRev: Double = Module.TICKS_PER_REV,
+    private val wheelRadius: Double = Module.WHEEL_RADIUS,
 
     // Motor Tuning
-    modulePID: PIDCoefficients = PIDCoefficients(4.0, 0.0, 0.1),
-    feedforwardCoefficients: FeedforwardCoefficients = FeedforwardCoefficients(),
+    modulePID: PIDCoefficients = Coefficients.MODULE_PID,
+    feedforwardCoefficients: FeedforwardCoefficients = Coefficients.FEEDFORWARD_COEFFICIENTS,
 
     // All the things to do with trajectory following
-    override val constraints: TrajectoryConstraints = GenericConstraints(),
-    translationalPID: PIDCoefficients = PIDCoefficients(1.0, 0.0, 0.5),
-    headingPID: PIDCoefficients = PIDCoefficients(1.0, 0.0, 0.5),
+    override val constraints: TrajectoryConstraints = Coefficients.TRAJECTORY_CONSTRAINTS,
+    translationalPID: PIDCoefficients = Coefficients.TRANSLATIONAL_PID,
+    headingPID: PIDCoefficients = Coefficients.HEADING_PID,
 ) : DriveComponent() {
     /*
      * Note that a motor A corresponds to the motor that spins the same direction as the wheel,
