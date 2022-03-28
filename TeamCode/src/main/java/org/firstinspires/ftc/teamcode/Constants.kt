@@ -1,31 +1,62 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.dashboard.config.Config
 import com.amarcolini.joos.control.FeedforwardCoefficients
 import com.amarcolini.joos.control.PIDCoefficients
 import com.amarcolini.joos.trajectory.config.GenericConstraints
 import org.firstinspires.ftc.teamcode.util.Inch
 
-// all distances in M
-const val ULTRAPLANETARY_TICKS = 28.0
-const val ULTRAPLANETARY_MAX_RPM = 6000.0
+@Config
+object Constants {
+    // all distances in M
 
-// A spins in the direction of the wheel, B in the opposite direction
-const val DRIVE_LEFT_A_NAME = "drive-left-a"
-const val DRIVE_LEFT_B_NAME = "drive-left-b"
-const val DRIVE_RIGHT_A_NAME = "drive-right-a"
-const val DRIVE_RIGHT_B_NAME = "drive-right-b"
+    @JvmField
+    var ULTRAPLANETARY_TICKS = 28.0
 
-object Module {
-    const val GEAR_RATIO = 1.0 / 30.0
-    const val TICKS_PER_REV = 100.0
-    const val TRACK_WIDTH: Inch = 16.0
-    const val WHEEL_RADIUS: Inch = 2.0
-}
+    @JvmField
+    var ULTRAPLANETARY_MAX_RPM = 6000.0
 
-object Coefficients {
-    val MODULE_PID = PIDCoefficients(4.0, 0.0, 0.1)
-    val FEEDFORWARD_COEFFICIENTS = FeedforwardCoefficients()
-    val TRAJECTORY_CONSTRAINTS = GenericConstraints()
-    val TRANSLATIONAL_PID = PIDCoefficients(1.0, 0.0, 0.5)
-    val HEADING_PID = PIDCoefficients(1.0, 0.0, 0.5)
+    // A spins in the direction of the wheel, B in the opposite direction
+    @JvmField
+    var DRIVE_LEFT_A_NAME = "drive-left-a"
+
+    @JvmField
+    var DRIVE_LEFT_B_NAME = "drive-left-b"
+
+    @JvmField
+    var DRIVE_RIGHT_A_NAME = "drive-right-a"
+
+    @JvmField
+    var DRIVE_RIGHT_B_NAME = "drive-right-b"
+
+    object Module {
+        @JvmField
+        var GEAR_RATIO = 1.0 / 30.0
+
+        @JvmField
+        var TICKS_PER_REV = 100.0
+
+        @JvmField
+        var TRACK_WIDTH: Inch = 16.0
+
+        @JvmField
+        var WHEEL_RADIUS: Inch = 2.0
+    }
+
+    object Coefficients {
+        @JvmField
+        var MODULE_PID = PIDCoefficients(4.0, 0.0, 0.1)
+
+        @JvmField
+        var FEEDFORWARD_COEFFICIENTS = FeedforwardCoefficients()
+
+        @JvmField
+        var TRAJECTORY_CONSTRAINTS = GenericConstraints()
+
+        @JvmField
+        var TRANSLATIONAL_PID = PIDCoefficients(1.0, 0.0, 0.5)
+
+        @JvmField
+        var HEADING_PID = PIDCoefficients(1.0, 0.0, 0.5)
+    }
 }

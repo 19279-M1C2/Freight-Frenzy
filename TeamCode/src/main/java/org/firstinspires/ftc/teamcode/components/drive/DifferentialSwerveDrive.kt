@@ -12,8 +12,15 @@ import com.amarcolini.joos.hardware.Motor
 import com.amarcolini.joos.hardware.drive.DriveComponent
 import com.amarcolini.joos.localization.Localizer
 import com.amarcolini.joos.trajectory.config.TrajectoryConstraints
-import org.firstinspires.ftc.teamcode.Coefficients
-import org.firstinspires.ftc.teamcode.Module
+import org.firstinspires.ftc.teamcode.Constants.Coefficients.FEEDFORWARD_COEFFICIENTS
+import org.firstinspires.ftc.teamcode.Constants.Coefficients.HEADING_PID
+import org.firstinspires.ftc.teamcode.Constants.Coefficients.MODULE_PID
+import org.firstinspires.ftc.teamcode.Constants.Coefficients.TRAJECTORY_CONSTRAINTS
+import org.firstinspires.ftc.teamcode.Constants.Coefficients.TRANSLATIONAL_PID
+import org.firstinspires.ftc.teamcode.Constants.Module.GEAR_RATIO
+import org.firstinspires.ftc.teamcode.Constants.Module.TICKS_PER_REV
+import org.firstinspires.ftc.teamcode.Constants.Module.TRACK_WIDTH
+import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
 import kotlin.math.PI
 
 /**
@@ -34,19 +41,19 @@ class DifferentialSwerveDrive(
     override val imu: Imu? = null,
 
     // All the drive base constants
-    private val trackWidth: Double = Module.TRACK_WIDTH,
-    private val gearRatio: Double = Module.GEAR_RATIO,
-    private val ticksPerRev: Double = Module.TICKS_PER_REV,
-    private val wheelRadius: Double = Module.WHEEL_RADIUS,
+    private val trackWidth: Double = TRACK_WIDTH,
+    private val gearRatio: Double = GEAR_RATIO,
+    private val ticksPerRev: Double = TICKS_PER_REV,
+    private val wheelRadius: Double = WHEEL_RADIUS,
 
     // Motor Tuning
-    modulePID: PIDCoefficients = Coefficients.MODULE_PID,
-    feedforwardCoefficients: FeedforwardCoefficients = Coefficients.FEEDFORWARD_COEFFICIENTS,
+    modulePID: PIDCoefficients = MODULE_PID,
+    feedforwardCoefficients: FeedforwardCoefficients = FEEDFORWARD_COEFFICIENTS,
 
     // All the things to do with trajectory following
-    override val constraints: TrajectoryConstraints = Coefficients.TRAJECTORY_CONSTRAINTS,
-    translationalPID: PIDCoefficients = Coefficients.TRANSLATIONAL_PID,
-    headingPID: PIDCoefficients = Coefficients.HEADING_PID,
+    override val constraints: TrajectoryConstraints = TRAJECTORY_CONSTRAINTS,
+    translationalPID: PIDCoefficients = TRANSLATIONAL_PID,
+    headingPID: PIDCoefficients = HEADING_PID,
 ) : DriveComponent() {
     /*
      * Note that a motor A corresponds to the motor that spins the same direction as the wheel,
