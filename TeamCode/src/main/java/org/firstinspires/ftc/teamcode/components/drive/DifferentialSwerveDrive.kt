@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.components.drive
 
+import com.amarcolini.joos.command.SuperTelemetry
 import com.amarcolini.joos.control.FeedforwardCoefficients
 import com.amarcolini.joos.control.PIDCoefficients
 import com.amarcolini.joos.control.PIDFController
@@ -38,6 +39,7 @@ import kotlin.math.PI
 class DifferentialSwerveDrive(
     private val leftMotorA: Motor, private val leftMotorB: Motor,
     private val rightMotorA: Motor, private val rightMotorB: Motor,
+    private val telemetry: SuperTelemetry,
     override val imu: Imu? = null,
 
     // All the drive base constants
@@ -84,6 +86,7 @@ class DifferentialSwerveDrive(
         rightModuleController.setInputBounds(-PI, PI)
 
         motors.forEach {
+            it.runMode = Motor.RunMode.RUN_WITHOUT_ENCODER
             it.distancePerRev = 2 * PI * wheelRadius * gearRatio
             it.feedforwardCoefficients = feedforwardCoefficients
         }
@@ -130,6 +133,12 @@ class DifferentialSwerveDrive(
         )
         rightMotorA.setSpeed(rightVel + rightControl, rightAccel)
         rightMotorB.setSpeed(-rightVel + rightControl, -rightAccel)
+
+        telemetry.addData("Left Module", leftControl)
+        telemetry.addData("Right Module", rightControl)
+        telemetry.addData("Left Velocity", leftVel)
+        telemetry.addData("Right Velocity", rightVel)
+        telemetry.update()
 
         motors.forEach { it.update() }
     }

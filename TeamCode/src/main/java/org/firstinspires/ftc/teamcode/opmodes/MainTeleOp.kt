@@ -22,8 +22,14 @@ class MainTeleOp : EnhancedOpMode<MainRobot>() {
                 val leftStickY = gamepad1.left_stick_y.toDouble()
                 val rightStickX = gamepad1.right_stick_x.toDouble()
 
+                telemetry.addData("leftStickX", leftStickX)
+                telemetry.addData("leftStickY", leftStickY)
+                telemetry.addData("rightStickX", rightStickX)
 
+                telemetry.addData("drive.left", drive.poseEstimate)
+                telemetry.update()
                 drive.setDrivePower(Pose2d(leftStickX, leftStickY, rightStickX))
+                drive.update()
             }.requires(drive)
                 .onEnd { drive.setDrivePower(Pose2d(0.0, 0.0, 0.0)) }
                 .runUntil(false)

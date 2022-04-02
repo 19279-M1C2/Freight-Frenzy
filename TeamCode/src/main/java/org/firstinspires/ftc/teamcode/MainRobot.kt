@@ -27,7 +27,8 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
             Motor(hMap, DRIVE_LEFT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
             Motor(hMap, DRIVE_RIGHT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
             Motor(hMap, DRIVE_RIGHT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
-            imu,
+            telemetry,
+            null,
         )
     }
 
