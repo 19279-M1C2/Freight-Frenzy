@@ -29,12 +29,13 @@ object Constants {
     @JvmField
     var DRIVE_RIGHT_B_NAME = "drive-right-b"
 
+    @Config
     object Module {
         @JvmField
-        var GEAR_RATIO = 1.0 / 30.0
+        var GEAR_RATIO = 1 / 7.0
 
         @JvmField
-        var TICKS_PER_REV = 100.0
+        var TICKS_PER_REV = 682.0
 
         @JvmField
         var TRACK_WIDTH: Inch = 16.0
@@ -43,12 +44,13 @@ object Constants {
         var WHEEL_RADIUS: Inch = 2.0
     }
 
+    @Config
     object Coefficients {
         @JvmField
-        var MODULE_PID = PIDCoefficients(4.0, 0.0, 0.1)
+        var MODULE_PID = PIDCoefficients(600.0, 0.0, 10.0)
 
         @JvmField
-        var FEEDFORWARD_COEFFICIENTS = FeedforwardCoefficients()
+        var FEEDFORWARD_COEFFICIENTS = FeedforwardCoefficients(0.01795195802)
 
         @JvmField
         var TRAJECTORY_CONSTRAINTS = GenericConstraints()

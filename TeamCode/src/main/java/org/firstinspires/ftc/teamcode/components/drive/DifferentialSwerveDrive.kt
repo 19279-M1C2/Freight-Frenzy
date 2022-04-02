@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.components.drive
 
+import com.amarcolini.joos.command.SuperTelemetry
 import com.amarcolini.joos.control.FeedforwardCoefficients
 import com.amarcolini.joos.control.PIDCoefficients
 import com.amarcolini.joos.control.PIDFController
@@ -32,12 +33,13 @@ import kotlin.math.PI
  * @param feedforwardCoefficients the feedforward coeffs for the motors
  * @param constraints The constraints for the drive
  * @param gearRatio The gear ratio from one of the motors to the wheel shaft
- * @param ticksPerRev The tickets per rev of each module
+ * @param ticksPerRev The ticks per rev of each module
  * @param wheelRadius The radius of each wheel
  */
 class DifferentialSwerveDrive(
     private val leftMotorA: Motor, private val leftMotorB: Motor,
     private val rightMotorA: Motor, private val rightMotorB: Motor,
+    private val telemetry: SuperTelemetry,
     override val imu: Imu? = null,
 
     // All the drive base constants
@@ -86,6 +88,7 @@ class DifferentialSwerveDrive(
         motors.forEach {
             it.distancePerRev = 2 * PI * wheelRadius * gearRatio
             it.feedforwardCoefficients = feedforwardCoefficients
+            it.resetEncoder()
         }
     }
 
@@ -130,6 +133,16 @@ class DifferentialSwerveDrive(
         )
         rightMotorA.setSpeed(rightVel + rightControl, rightAccel)
         rightMotorB.setSpeed(-rightVel + rightControl, -rightAccel)
+
+        telemetry.addData("left motor a speed", leftControl)
+        telemetry.addData("left motor b speed", leftControl)
+        telemetry.addData("right motor a speed", rightVel + rightControl)
+        telemetry.addData("right motor b speed", -rightVel + rightControl)
+        telemetry.addData("module directions", Math.toDegrees(getModuleOrientations().first))
+        telemetry.addData("target", Math.toDegrees(leftModuleController.targetPosition))
+        telemetry.addData("left motor a encoder", leftMotorA.currentPosition)
+        telemetry.addData("left motor b encoder", leftMotorB.currentPosition)
+        telemetry.update()
 
         motors.forEach { it.update() }
     }

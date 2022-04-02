@@ -21,14 +21,21 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
 
     fun initDrive() {
         initImu()
+        val driveLeftA = Motor(hMap, DRIVE_LEFT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
+        val driveLeftB = Motor(hMap, DRIVE_LEFT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
+        val driveRightA = Motor(hMap, DRIVE_RIGHT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
+        val driveRightB = Motor(hMap, DRIVE_RIGHT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
 
         drive = DifferentialSwerveDrive(
-            Motor(hMap, DRIVE_LEFT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
-            Motor(hMap, DRIVE_LEFT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
-            Motor(hMap, DRIVE_RIGHT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
-            Motor(hMap, DRIVE_RIGHT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
-            imu,
+            driveLeftA,
+            driveLeftB,
+            driveRightA,
+            driveRightB,
+            telemetry,
+            null,
         )
+
+        register(drive)
     }
 
     fun initImu() {
