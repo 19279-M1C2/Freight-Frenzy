@@ -86,6 +86,7 @@ class DifferentialSwerveDrive(
         rightModuleController.setInputBounds(-PI, PI)
 
         motors.forEach {
+            it.runMode = Motor.RunMode.RUN_WITHOUT_ENCODER
             it.distancePerRev = 2 * PI * wheelRadius * gearRatio
             it.feedforwardCoefficients = feedforwardCoefficients
             it.resetEncoder()
