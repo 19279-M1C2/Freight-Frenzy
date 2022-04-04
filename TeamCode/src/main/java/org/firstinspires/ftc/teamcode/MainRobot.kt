@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import com.amarcolini.joos.command.FunctionalCommand
 import com.amarcolini.joos.command.Robot
 import com.amarcolini.joos.hardware.Imu
 import com.amarcolini.joos.hardware.Motor
@@ -11,9 +12,12 @@ import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_MAX_RPM
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_TICKS
 import org.firstinspires.ftc.teamcode.components.drive.DifferentialSwerveDrive
 import org.firstinspires.ftc.teamcode.opmodes.EnhancedOpMode
+import org.firstinspires.ftc.teamcode.util.TelemetryUpdater
 
 
 class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
+
+    private val teleValues = mutableListOf<TelemetryUpdater>()
 
     // declare your motors and sensors here. CRS, Servos, DC, Drivetrain
     lateinit var drive: DifferentialSwerveDrive
@@ -31,9 +35,26 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
             driveLeftB,
             driveRightA,
             driveRightB,
-            telemetry,
-            null,
+            imu,
         )
+        teleValues.addAll(
+            listOf(TelemetryUpdater(
+                "left",
+                telemetry
+            ) { drive.getModuleOrientations().first },
+                TelemetryUpdater(
+                    "right",
+                    telemetry
+                ) { drive.getModuleOrientations().second },
+                TelemetryUpdater(
+                    "target left",
+                    telemetry
+                ) { drive.getTargetModuleOrientations().first },
+                TelemetryUpdater(
+                    "target right",
+                    telemetry
+                ) { drive.getTargetModuleOrientations().second }
+            ))
 
         register(drive)
     }
@@ -46,9 +67,9 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
         val res = imu?.autoDetectUpAxis()
 
         if (res != null) {
-            telemetry.addData("imu", "up axis: %s", res)
+            telemetry.addLine("imu: up axis: $res")
         } else {
-            telemetry.addData("imu", "up axis: unknown")
+            telemetry.addLine("imu: up axis not detected")
 
             // void the imu so that we aren't using the wrong axis
             imu = null
@@ -66,21 +87,26 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
         // for now im going with the first option
         initDrive()
 
-        val leftStick = gamepad.p1.getLeftStick()
-        val rightStick = gamepad.p1.getRightStick()
-
-        telemetry.addData("Left Stick", leftStick)
-        telemetry.addData("Right Stick", rightStick)
-
         // reset arms whatever
         opMode.initSchedule()
+        schedule(telemetryUpdate)
     }
+
+    private val telemetryUpdate = FunctionalCommand(
+        execute = {
+            teleValues.forEach { it.update() }
+        },
+        isFinished = { false }
+    )
 
     /**
      * This runs whenever the robot starts. It is automatically called by the teleOp
      */
     override fun start() {
         opMode.startSchedule()
+    }
+
+
 //        when (mode) {
 //            Mode.TeleOpMain -> {
 //                val driver =
@@ -113,5 +139,4 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
 //                schedule(firstPath)
 //            }
 //        }
-    }
 }

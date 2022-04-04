@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.components.drive
 
-import com.amarcolini.joos.command.SuperTelemetry
 import com.amarcolini.joos.control.FeedforwardCoefficients
 import com.amarcolini.joos.control.PIDCoefficients
 import com.amarcolini.joos.control.PIDFController
@@ -39,7 +38,6 @@ import kotlin.math.PI
 class DifferentialSwerveDrive(
     private val leftMotorA: Motor, private val leftMotorB: Motor,
     private val rightMotorA: Motor, private val rightMotorB: Motor,
-    private val telemetry: SuperTelemetry,
     override val imu: Imu? = null,
 
     // All the drive base constants
@@ -104,8 +102,11 @@ class DifferentialSwerveDrive(
     private fun getWheelVelocities(): Pair<Double, Double> =
         (leftMotorA.distanceVelocity - leftMotorB.distanceVelocity) * 0.5 to (rightMotorA.distanceVelocity - rightMotorB.distanceVelocity) * 0.5
 
-    private fun getModuleOrientations(): Pair<Double, Double> =
+    fun getModuleOrientations(): Pair<Double, Double> =
         (leftMotorA.currentPosition + leftMotorB.currentPosition) / ticksPerRev * PI to (rightMotorA.currentPosition + rightMotorB.currentPosition) / ticksPerRev * PI
+
+    fun getTargetModuleOrientations(): Pair<Double, Double> =
+        leftModuleController.targetPosition to rightModuleController.targetPosition
 
     override fun setDrivePower(drivePower: Pose2d) {
         val leftVector = Vector2d(drivePower.x, drivePower.y + drivePower.heading)
@@ -134,16 +135,6 @@ class DifferentialSwerveDrive(
         )
         rightMotorA.setSpeed(rightVel + rightControl, rightAccel)
         rightMotorB.setSpeed(-rightVel + rightControl, -rightAccel)
-
-        telemetry.addData("left motor a speed", leftControl)
-        telemetry.addData("left motor b speed", leftControl)
-        telemetry.addData("right motor a speed", rightVel + rightControl)
-        telemetry.addData("right motor b speed", -rightVel + rightControl)
-        telemetry.addData("module directions", Math.toDegrees(getModuleOrientations().first))
-        telemetry.addData("target", Math.toDegrees(leftModuleController.targetPosition))
-        telemetry.addData("left motor a encoder", leftMotorA.currentPosition)
-        telemetry.addData("left motor b encoder", leftMotorB.currentPosition)
-        telemetry.update()
 
         motors.forEach { it.update() }
     }
