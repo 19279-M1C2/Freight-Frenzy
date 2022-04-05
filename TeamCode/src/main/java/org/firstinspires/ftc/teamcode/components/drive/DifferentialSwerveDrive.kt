@@ -80,8 +80,8 @@ class DifferentialSwerveDrive(
     private val motors = listOf(leftMotorA, leftMotorB, rightMotorA, rightMotorB)
 
     init {
-        leftModuleController.setInputBounds(-PI, PI)
-        rightModuleController.setInputBounds(-PI, PI)
+        leftModuleController.setInputBounds(-0.5 * PI, 0.5 * PI)
+        rightModuleController.setInputBounds(-0.5 * PI, 0.5 * PI)
 
         motors.forEach {
             it.runMode = Motor.RunMode.RUN_WITHOUT_ENCODER
@@ -112,8 +112,8 @@ class DifferentialSwerveDrive(
         val leftVector = Vector2d(drivePower.x, drivePower.y + drivePower.heading)
         val rightVector = Vector2d(drivePower.x, drivePower.y - drivePower.heading)
 
-        leftModuleController.setTarget(leftVector.angle())
-        rightModuleController.setTarget(rightVector.angle())
+        leftModuleController.setTarget(leftVector.rotated(imu?.heading ?: 0.0).angle())
+        rightModuleController.setTarget(rightVector.rotated(imu?.heading ?: 0.0).angle())
 
         leftVel = leftVector.norm() * leftMotorA.maxRPM
         leftAccel = 0.0
@@ -127,14 +127,43 @@ class DifferentialSwerveDrive(
         val leftControl = leftModuleController.update(
             moduleOrientations.first
         )
-        leftMotorA.setSpeed(leftVel + leftControl, leftAccel)
-        leftMotorB.setSpeed(-leftVel + leftControl, -leftAccel)
+
+        val actualLeftVel =
+            if (leftModuleController.targetPosition % 2 * PI < PI) {
+                leftVel
+            } else {
+                -leftVel
+            }
+
+        val actualLeftAccel =
+            if (leftModuleController.targetPosition % 2 * PI < PI) {
+                leftAccel
+            } else {
+                -leftAccel
+            }
+
+        leftMotorA.setSpeed(actualLeftVel + leftControl, actualLeftAccel)
+        leftMotorB.setSpeed(-actualLeftVel + leftControl, -actualLeftAccel)
+
+        val actualRightVel =
+            if (rightModuleController.targetPosition % 2 < PI) {
+                rightVel
+            } else {
+                -rightVel
+            }
+
+        val actualRightAccel =
+            if (rightModuleController.targetPosition % 2 < PI) {
+                rightAccel
+            } else {
+                -rightAccel
+            }
 
         val rightControl = rightModuleController.update(
             moduleOrientations.second
         )
-        rightMotorA.setSpeed(rightVel + rightControl, rightAccel)
-        rightMotorB.setSpeed(-rightVel + rightControl, -rightAccel)
+        rightMotorA.setSpeed(actualRightVel + rightControl, actualRightAccel)
+        rightMotorB.setSpeed(-actualRightVel + rightControl, -actualRightAccel)
 
         motors.forEach { it.update() }
     }
