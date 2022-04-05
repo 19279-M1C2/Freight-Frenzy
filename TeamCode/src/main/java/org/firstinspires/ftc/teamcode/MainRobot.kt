@@ -6,13 +6,14 @@ import com.amarcolini.joos.hardware.Imu
 import com.amarcolini.joos.hardware.Motor
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_A_NAME
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_B_NAME
-import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_A_NAME
-import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_B_NAME
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_MAX_RPM
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_TICKS
+import org.firstinspires.ftc.teamcode.components.DummyMotor
 import org.firstinspires.ftc.teamcode.components.drive.DifferentialSwerveDrive
 import org.firstinspires.ftc.teamcode.opmodes.EnhancedOpMode
 import org.firstinspires.ftc.teamcode.util.TelemetryUpdater
+import kotlin.math.PI
+import kotlin.math.abs
 
 
 class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
@@ -27,8 +28,18 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
         initImu()
         val driveLeftA = Motor(hMap, DRIVE_LEFT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
         val driveLeftB = Motor(hMap, DRIVE_LEFT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
-        val driveRightA = Motor(hMap, DRIVE_RIGHT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
-        val driveRightB = Motor(hMap, DRIVE_RIGHT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
+//        val driveRightA = Motor(hMap, DRIVE_RIGHT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
+//        val driveRightB = Motor(hMap, DRIVE_RIGHT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
+        val driveRightA = Motor(
+            DummyMotor(ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
+            ULTRAPLANETARY_MAX_RPM,
+            ULTRAPLANETARY_TICKS
+        )
+        val driveRightB = Motor(
+            DummyMotor(ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
+            ULTRAPLANETARY_MAX_RPM,
+            ULTRAPLANETARY_TICKS
+        )
 
         drive = DifferentialSwerveDrive(
             driveLeftA,
@@ -41,19 +52,19 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
             listOf(TelemetryUpdater(
                 "left",
                 telemetry
-            ) { drive.getModuleOrientations().first },
+            ) { abs(drive.getModuleOrientations().first) % (PI) },
                 TelemetryUpdater(
                     "right",
                     telemetry
-                ) { drive.getModuleOrientations().second },
+                ) { abs(drive.getModuleOrientations().second) % (PI) },
                 TelemetryUpdater(
                     "target left",
                     telemetry
-                ) { drive.getTargetModuleOrientations().first },
+                ) { abs(drive.getTargetModuleOrientations().first) % (PI) },
                 TelemetryUpdater(
                     "target right",
                     telemetry
-                ) { drive.getTargetModuleOrientations().second }
+                ) { abs(drive.getTargetModuleOrientations().second) % (PI) }
             ))
 
         register(drive)
