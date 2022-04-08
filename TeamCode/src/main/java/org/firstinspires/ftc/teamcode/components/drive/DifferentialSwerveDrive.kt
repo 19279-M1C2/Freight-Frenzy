@@ -82,6 +82,8 @@ class DifferentialSwerveDrive(
     init {
         leftModuleController.setInputBounds(-0.5 * PI, 0.5 * PI)
         rightModuleController.setInputBounds(-0.5 * PI, 0.5 * PI)
+//        leftModuleController.setInputBounds(-PI, PI)
+//        rightModuleController.setInputBounds(-PI, PI)
 
         motors.forEach {
             it.runMode = Motor.RunMode.RUN_WITHOUT_ENCODER
@@ -143,7 +145,7 @@ class DifferentialSwerveDrive(
             }
 
         leftMotorA.setSpeed(actualLeftVel + leftControl, actualLeftAccel)
-        leftMotorB.setSpeed(-actualLeftVel + leftControl, -actualLeftAccel)
+        leftMotorB.setSpeed(actualLeftVel - leftControl, actualLeftAccel)
 
         val actualRightVel =
             if (rightModuleController.targetPosition % 2 < PI) {
@@ -163,7 +165,8 @@ class DifferentialSwerveDrive(
             moduleOrientations.second
         )
         rightMotorA.setSpeed(actualRightVel + rightControl, actualRightAccel)
-        rightMotorB.setSpeed(-actualRightVel + rightControl, -actualRightAccel)
+        rightMotorB.setSpeed(actualRightVel - rightControl, actualRightAccel)
+
 
         motors.forEach { it.update() }
     }
