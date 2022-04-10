@@ -1,12 +1,20 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
 import com.amarcolini.joos.command.Command
-import com.amarcolini.joos.command.Robot
 import com.amarcolini.joos.command.RobotOpMode
+import com.amarcolini.joos.gamepad.MultipleGamepad
+import org.firstinspires.ftc.teamcode.MainRobot
 
-abstract class EnhancedOpMode<T : Robot> : RobotOpMode<T>() {
+abstract class EnhancedOpMode : RobotOpMode<MainRobot>() {
     fun schedule(vararg command: Command) = robot.schedule(*command)
 
-    abstract fun startSchedule()
-    abstract fun initSchedule()
+    lateinit var gamepad: MultipleGamepad
+
+    final override fun init() {
+        initialize(MainRobot(this))
+        gamepad = robot.gamepad
+    }
+
+    abstract fun startCommands()
+    abstract fun initCommands()
 }

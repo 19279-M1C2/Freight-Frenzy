@@ -12,6 +12,7 @@ import com.amarcolini.joos.hardware.Motor
 import com.amarcolini.joos.hardware.drive.DriveComponent
 import com.amarcolini.joos.localization.Localizer
 import com.amarcolini.joos.trajectory.config.TrajectoryConstraints
+import com.amarcolini.joos.util.wrap
 import org.firstinspires.ftc.teamcode.Constants.Coefficients.FEEDFORWARD_COEFFICIENTS
 import org.firstinspires.ftc.teamcode.Constants.Coefficients.HEADING_PID
 import org.firstinspires.ftc.teamcode.Constants.Coefficients.MODULE_PID
@@ -22,6 +23,7 @@ import org.firstinspires.ftc.teamcode.Constants.Module.TICKS_PER_REV
 import org.firstinspires.ftc.teamcode.Constants.Module.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
 import kotlin.math.PI
+import kotlin.math.abs
 
 /**
  * Differential swerve controller
@@ -110,12 +112,23 @@ class DifferentialSwerveDrive(
     fun getTargetModuleOrientations(): Pair<Double, Double> =
         leftModuleController.targetPosition to rightModuleController.targetPosition
 
+//    private fun getDirectionalModuleOrientations(): Pair<Double, Double> {
+//        val (left, right) = getModuleOrientations()
+//        val (sameLeft, sameRight) = isSameHalf
+//
+//        val directionalLeft = if (sameLeft) left else left + PI
+//        val directionalRight = if (sameRight) right else right + PI
+//
+//        return directionalLeft to directionalRight
+//    }
+
+
     override fun setDrivePower(drivePower: Pose2d) {
         val leftVector = Vector2d(drivePower.x, drivePower.y + drivePower.heading)
         val rightVector = Vector2d(drivePower.x, drivePower.y - drivePower.heading)
 
-        leftModuleController.setTarget(leftVector.rotated(imu?.heading ?: 0.0).angle())
-        rightModuleController.setTarget(rightVector.rotated(imu?.heading ?: 0.0).angle())
+        leftModuleController.setTarget(leftVector.angle())
+        rightModuleController.setTarget(rightVector.angle())
 
         leftVel = leftVector.norm() * leftMotorA.maxRPM
         leftAccel = 0.0
@@ -125,51 +138,51 @@ class DifferentialSwerveDrive(
 
     override fun update() {
         super.update()
+
         val moduleOrientations = getModuleOrientations()
-        val leftControl = leftModuleController.update(
-            moduleOrientations.first
-        )
 
-        val actualLeftVel =
-            if (leftModuleController.targetPosition % 2 * PI < PI) {
-                leftVel
-            } else {
-                -leftVel
-            }
-
-        val actualLeftAccel =
-            if (leftModuleController.targetPosition % 2 * PI < PI) {
-                leftAccel
-            } else {
-                -leftAccel
-            }
-
-        leftMotorA.setSpeed(actualLeftVel + leftControl, actualLeftAccel)
-        leftMotorB.setSpeed(actualLeftVel - leftControl, actualLeftAccel)
-
-        val actualRightVel =
-            if (rightModuleController.targetPosition % 2 < PI) {
-                rightVel
-            } else {
-                -rightVel
-            }
-
-        val actualRightAccel =
-            if (rightModuleController.targetPosition % 2 < PI) {
-                rightAccel
-            } else {
-                -rightAccel
-            }
-
-        val rightControl = rightModuleController.update(
-            moduleOrientations.second
-        )
-        rightMotorA.setSpeed(actualRightVel + rightControl, actualRightAccel)
-        rightMotorB.setSpeed(actualRightVel - rightControl, actualRightAccel)
-
+        setSpeed(leftMotorA, leftMotorB, leftModuleController, moduleOrientations.first, leftVel, leftAccel)
+        setSpeed(rightMotorA, rightMotorB, rightModuleController, moduleOrientations.second, rightVel, rightAccel)
 
         motors.forEach { it.update() }
     }
+
+    private fun setSpeed(
+        motorA: Motor,
+        motorB: Motor,
+        controller: PIDFController,
+        moduleOrientation: Double,
+        vel: Double,
+        accel: Double
+    ) {
+        val sameHalf = isSameHalf(moduleOrientation, controller.targetPosition)
+        val (v, a) = calculateDirection(sameHalf, vel, accel)
+        motorA.setSpeed(v + controller.update(moduleOrientation), a)
+        motorB.setSpeed(-v + controller.update(moduleOrientation), -a)
+    }
+
+    /**
+     * This functions inverts the direction of a speed based on [sameHalf]
+     */
+    private fun calculateDirection(
+        sameHalf: Boolean,
+        vel: Double,
+        accel: Double
+    ): Pair<Double, Double> {
+
+        return if (sameHalf) {
+            Pair(vel, accel)
+        } else {
+            Pair(-vel, -accel)
+        }
+    }
+
+    /**
+     * Checks if two angles are within half pi radians of each other
+     */
+    private fun isSameHalf(first: Double, second: Double) =
+        (abs(first.wrap(-PI, PI) - second.wrap(-PI, PI)) <= 0.5 * PI)
+
 
     override fun setDriveSignal(driveSignal: DriveSignal) {
         val leftVelVector = Vector2d(driveSignal.vel.x, driveSignal.vel.y + driveSignal.vel.heading)

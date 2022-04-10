@@ -8,7 +8,6 @@ import com.amarcolini.joos.geometry.Pose2d
 import com.amarcolini.joos.util.NanoClock
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.internal.system.Misc
-import org.firstinspires.ftc.teamcode.MainRobot
 import org.firstinspires.ftc.teamcode.Constants.Module.GEAR_RATIO
 import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
 import org.firstinspires.ftc.teamcode.util.Inch
@@ -21,22 +20,17 @@ import kotlin.math.sqrt
 
 
 @TeleOp(name = "Automatic Feedforward Tunner", group = "Tuning")
-class AutomaticFeedforwardTunner : EnhancedOpMode<MainRobot>() {
+class AutomaticFeedforwardTunner : EnhancedOpMode() {
     companion object {
         const val MAX_POWER = 0.7
         const val DISTANCE: Inch = 100.0
     }
 
-    override fun init() {
-        initialize(MainRobot(this))
-        telemetry
-    }
-
-    override fun initSchedule() {
+    override fun initCommands() {
 
     }
 
-    override fun startSchedule() {
+    override fun startCommands() {
         var fitIntercept = false
 
         val maxVel: Double = 2 * PI * WHEEL_RADIUS * GEAR_RATIO
@@ -58,7 +52,6 @@ class AutomaticFeedforwardTunner : EnhancedOpMode<MainRobot>() {
                     telemetry.clearAll()
                     telemetry.addLine("Would you like to fit kStatic?")
                     telemetry.addLine("Press (Y/Δ) for yes, (B/O) for no")
-                    telemetry.update()
                 },
                 isFinished = { gamepad1.y || gamepad1.b },
                 end = { if (gamepad1.y) fitIntercept = true }),
@@ -71,13 +64,11 @@ class AutomaticFeedforwardTunner : EnhancedOpMode<MainRobot>() {
                         )
                     )
                     telemetry.addLine("Press (Y/Δ) to begin")
-                    telemetry.update()
                 },
                 isFinished = { gamepad1.y },
                 end = {
                     telemetry.clearAll()
                     telemetry.addLine("Running...")
-                    telemetry.update()
                 }),
             FunctionalCommand(
                 init = { startTime = clock.seconds() },
@@ -139,7 +130,6 @@ class AutomaticFeedforwardTunner : EnhancedOpMode<MainRobot>() {
                 init = {
                     telemetry.addLine("Would you like to fit kA?")
                     telemetry.addLine("Press (Y/Δ) for yes, (B/O) for no")
-                    telemetry.update()
 
                 },
                 isFinished = { gamepad1.y || gamepad1.b },
@@ -156,12 +146,10 @@ class AutomaticFeedforwardTunner : EnhancedOpMode<MainRobot>() {
                             telemetry.clearAll()
                             telemetry.addLine("Place the robot back in its starting position")
                             telemetry.addLine("Press (Y/Δ) to continue")
-                            telemetry.update()
                         }, isFinished = { gamepad1.y },
                         end = {
                             telemetry.clearAll()
                             telemetry.addLine("Running...")
-                            telemetry.update()
                         }),
 
                     FunctionalCommand(
@@ -207,7 +195,6 @@ class AutomaticFeedforwardTunner : EnhancedOpMode<MainRobot>() {
                                     kA, rSquare
                                 )
                             )
-                            telemetry.update()
                         }
                     )
                 )

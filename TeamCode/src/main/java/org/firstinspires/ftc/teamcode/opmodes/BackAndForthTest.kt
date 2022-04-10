@@ -4,22 +4,17 @@ import com.amarcolini.joos.command.Command
 import com.amarcolini.joos.command.SequentialCommand
 import com.amarcolini.joos.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.MainRobot
 import org.firstinspires.ftc.teamcode.util.Inch
 
 
 @TeleOp(name = "BackAndForthTest", group = "Tuning")
-class BackAndForthTest : EnhancedOpMode<MainRobot>() {
+class BackAndForthTest : EnhancedOpMode() {
 
     companion object {
         const val DISTANCE: Inch = 50.0
     }
 
-    override fun init() {
-        initialize(MainRobot(this))
-    }
-
-    override fun startSchedule() {
+    override fun startCommands() {
         val drive = robot.drive
         val forth = drive.trajectoryBuilder(Pose2d()).forward(DISTANCE).build()
         val back = drive.trajectoryBuilder(forth.end()).back(DISTANCE).build()
@@ -35,7 +30,7 @@ class BackAndForthTest : EnhancedOpMode<MainRobot>() {
         }.runUntil { false }.requires(drive))
     }
 
-    override fun initSchedule() {
+    override fun initCommands() {
 
     }
 

@@ -4,6 +4,7 @@ import com.amarcolini.joos.command.FunctionalCommand
 import com.amarcolini.joos.command.Robot
 import com.amarcolini.joos.hardware.Imu
 import com.amarcolini.joos.hardware.Motor
+import com.amarcolini.joos.util.wrap
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_A_NAME
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_B_NAME
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_MAX_RPM
@@ -13,10 +14,9 @@ import org.firstinspires.ftc.teamcode.components.drive.DifferentialSwerveDrive
 import org.firstinspires.ftc.teamcode.opmodes.EnhancedOpMode
 import org.firstinspires.ftc.teamcode.util.TelemetryUpdater
 import kotlin.math.PI
-import kotlin.math.abs
 
 
-class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
+class MainRobot(val opMode: EnhancedOpMode) : Robot(opMode) {
 
     private val teleValues = mutableListOf<TelemetryUpdater>()
 
@@ -24,10 +24,19 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
     lateinit var drive: DifferentialSwerveDrive
     private var imu: Imu? = null
 
-    fun initDrive() {
+    private fun initDrive() {
         initImu()
         val driveLeftA = Motor(hMap, DRIVE_LEFT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
         val driveLeftB = Motor(hMap, DRIVE_LEFT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
+
+        driveLeftB.reversed()
+
+        teleValues.addAll(
+            listOf(
+                TelemetryUpdater("Drive Left A", telemetry) { driveLeftA.currentPosition },
+                TelemetryUpdater("Drive Left B", telemetry) { driveLeftB.currentPosition }
+            )
+        )
 //        val driveRightA = Motor(hMap, DRIVE_RIGHT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
 //        val driveRightB = Motor(hMap, DRIVE_RIGHT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
         val driveRightA = Motor(
@@ -41,36 +50,38 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
             ULTRAPLANETARY_TICKS
         )
 
+        driveRightB.reversed()
+
         drive = DifferentialSwerveDrive(
             driveLeftA,
             driveLeftB,
             driveRightA,
             driveRightB,
-            imu,
+            null, // TODO make this a real IMU when mounted
         )
         teleValues.addAll(
             listOf(TelemetryUpdater(
                 "left",
                 telemetry
-            ) { abs(drive.getModuleOrientations().first) % (PI) },
+            ) { ((drive.getModuleOrientations().first).wrap(-0.5 * PI, 0.5 * PI)) },
                 TelemetryUpdater(
                     "right",
                     telemetry
-                ) { abs(drive.getModuleOrientations().second) % (PI) },
+                ) { ((drive.getModuleOrientations().second).wrap(-0.5 * PI, 0.5 * PI)) },
                 TelemetryUpdater(
                     "target left",
                     telemetry
-                ) { abs(drive.getTargetModuleOrientations().first) % (PI) },
+                ) { (drive.getTargetModuleOrientations().first).wrap(-0.5 * PI, 0.5 * PI) },
                 TelemetryUpdater(
                     "target right",
                     telemetry
-                ) { abs(drive.getTargetModuleOrientations().second) % (PI) }
+                ) { (drive.getTargetModuleOrientations().second).wrap(-0.5 * PI, 0.5 * PI) }
             ))
 
         register(drive)
     }
 
-    fun initImu() {
+    private fun initImu() {
         imu = Imu(hMap, "imu")
 
         // If we have an IMU, let's set up the correct axis to be front incase we have it mounted vertically
@@ -99,7 +110,7 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
         initDrive()
 
         // reset arms whatever
-        opMode.initSchedule()
+        opMode.initCommands()
         schedule(telemetryUpdate)
     }
 
@@ -114,7 +125,7 @@ class MainRobot(val opMode: EnhancedOpMode<MainRobot>) : Robot(opMode) {
      * This runs whenever the robot starts. It is automatically called by the teleOp
      */
     override fun start() {
-        opMode.startSchedule()
+        opMode.startCommands()
     }
 
 

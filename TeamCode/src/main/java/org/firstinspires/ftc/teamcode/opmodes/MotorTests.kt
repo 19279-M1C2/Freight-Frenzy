@@ -48,8 +48,6 @@ class MotorTests : OpMode() {
 
         motorA.zeroPowerBehavior = Motor.ZeroPowerBehavior.FLOAT
         motorB.zeroPowerBehavior = Motor.ZeroPowerBehavior.FLOAT
-
-
     }
 
     override fun loop() {

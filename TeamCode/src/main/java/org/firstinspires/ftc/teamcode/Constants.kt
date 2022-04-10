@@ -33,11 +33,12 @@ object Constants {
     object Module {
         // From Motor to drive wheel
         @JvmField
-        var GEAR_RATIO = (1 / 7.0) * (5.0 / 6.0)
+        var GEAR_RATIO = (7.0 / 60.0)
+        //* (5.0 / 6.0)
 
         // From motor to module rev
         @JvmField
-        var TICKS_PER_REV = 818.0
+        var TICKS_PER_REV = 880.0
 
         @JvmField
         var TRACK_WIDTH: Inch = 16.0
@@ -49,7 +50,7 @@ object Constants {
     @Config
     object Coefficients {
         @JvmField
-        var MODULE_PID = PIDCoefficients(600.0, 0.0, 10.0)
+        var MODULE_PID = PIDCoefficients(800.0, 0.0, 50.0)
 
         @JvmField
         var FEEDFORWARD_COEFFICIENTS = FeedforwardCoefficients(0.00668450761)
