@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
-import com.amarcolini.joos.command.BasicCommand
-import com.amarcolini.joos.command.Command
-import com.amarcolini.joos.command.FunctionalCommand
-import com.amarcolini.joos.command.SequentialCommand
+import com.amarcolini.joos.command.*
 import com.amarcolini.joos.geometry.Pose2d
 import com.amarcolini.joos.util.NanoClock
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.internal.system.Misc
 import org.firstinspires.ftc.teamcode.Constants.Module.GEAR_RATIO
 import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
+import org.firstinspires.ftc.teamcode.MainRobot
 import org.firstinspires.ftc.teamcode.util.Inch
 import org.firstinspires.ftc.teamcode.util.LoggingUtil.getLogFile
 import org.firstinspires.ftc.teamcode.util.RegressionUtil
@@ -20,17 +18,14 @@ import kotlin.math.sqrt
 
 
 @TeleOp(name = "Automatic Feedforward Tunner", group = "Tuning")
-class AutomaticFeedforwardTunner : EnhancedOpMode() {
+class AutomaticFeedforwardTunner : RobotOpMode<MainRobot>() {
     companion object {
         const val MAX_POWER = 0.7
         const val DISTANCE: Inch = 100.0
     }
 
-    override fun initCommands() {
 
-    }
-
-    override fun startCommands() {
+    override fun preStart() {
         var fitIntercept = false
 
         val maxVel: Double = 2 * PI * WHEEL_RADIUS * GEAR_RATIO
@@ -201,7 +196,11 @@ class AutomaticFeedforwardTunner : EnhancedOpMode() {
             }
         )
 
-        schedule(SequentialCommand(false, kVTune, kATune))
+        robot.schedule(SequentialCommand(false, kVTune, kATune))
+    }
+
+    override fun preInit() {
+        initialize<MainRobot>()
     }
 
 

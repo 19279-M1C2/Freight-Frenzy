@@ -33,12 +33,12 @@ object Constants {
     object Module {
         // From Motor to drive wheel
         @JvmField
-        var GEAR_RATIO = (7.0 / 60.0)
+        var GEAR_RATIO = (1.0 / 7.0)
         //* (5.0 / 6.0)
 
         // From motor to module rev
         @JvmField
-        var TICKS_PER_REV = 880.0
+        var TICKS_PER_REV = 620.0
 
         @JvmField
         var TRACK_WIDTH: Inch = 16.0

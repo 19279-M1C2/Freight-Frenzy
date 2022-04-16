@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
 import com.amarcolini.joos.command.Command
+import com.amarcolini.joos.command.RobotOpMode
 import com.amarcolini.joos.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.MainRobot
 import org.firstinspires.ftc.teamcode.util.Inch
 
 
@@ -20,21 +22,21 @@ import org.firstinspires.ftc.teamcode.util.Inch
  * These coefficients can be tuned live in dashboard.
  */
 @TeleOp(name = "FollowerPIDTuner", group = "Tuning")
-class FollowerPIDTuner : EnhancedOpMode() {
+class FollowerPIDTuner : RobotOpMode<MainRobot>() {
 
     companion object {
         const val DISTANCE: Inch = 48.0
     }
 
-    override fun startCommands() {
+    override fun preStart() {
         val drive = robot.drive
 
         val startPose = Pose2d(-DISTANCE / 2, -DISTANCE / 2, 0.0)
 
         drive.poseEstimate = startPose
 
-        schedule(Command.of {
-            schedule(
+        robot.schedule(Command.of {
+            robot.schedule(
                 Command.select {
                     val trajSeq = drive.trajectoryBuilder(startPose)
                         .forward(DISTANCE)
@@ -53,8 +55,8 @@ class FollowerPIDTuner : EnhancedOpMode() {
         }.runUntil { false }.requires(drive))
     }
 
-    override fun initCommands() {
-
+    override fun preInit() {
+        initialize<MainRobot>()
     }
 
 

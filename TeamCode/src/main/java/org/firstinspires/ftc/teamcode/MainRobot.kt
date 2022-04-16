@@ -1,81 +1,94 @@
 package org.firstinspires.ftc.teamcode
 
+//import org.firstinspires.ftc.teamcode.components.drive.DifferentialSwerveDrive
 import com.amarcolini.joos.command.FunctionalCommand
 import com.amarcolini.joos.command.Robot
+import com.amarcolini.joos.command.RobotOpMode
 import com.amarcolini.joos.hardware.Imu
 import com.amarcolini.joos.hardware.Motor
+import com.amarcolini.joos.hardware.drive.DiffSwerveDrive
+import com.amarcolini.joos.trajectory.config.DiffSwerveConstraints
 import com.amarcolini.joos.util.wrap
+import org.firstinspires.ftc.teamcode.Constants.Coefficients.HEADING_PID
+import org.firstinspires.ftc.teamcode.Constants.Coefficients.MODULE_PID
+import org.firstinspires.ftc.teamcode.Constants.Coefficients.TRANSLATIONAL_PID
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_A_NAME
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_B_NAME
+import org.firstinspires.ftc.teamcode.Constants.Module.GEAR_RATIO
+import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_MAX_RPM
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_TICKS
 import org.firstinspires.ftc.teamcode.components.DummyMotor
-import org.firstinspires.ftc.teamcode.components.drive.DifferentialSwerveDrive
-import org.firstinspires.ftc.teamcode.opmodes.EnhancedOpMode
 import org.firstinspires.ftc.teamcode.util.TelemetryUpdater
 import kotlin.math.PI
 
 
-class MainRobot(val opMode: EnhancedOpMode) : Robot(opMode) {
+class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
 
     private val teleValues = mutableListOf<TelemetryUpdater>()
 
     // declare your motors and sensors here. CRS, Servos, DC, Drivetrain
-    lateinit var drive: DifferentialSwerveDrive
+    lateinit var drive: DiffSwerveDrive
     private var imu: Imu? = null
+
+    private fun driveMotorFactory(name: String): Motor =
+        Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS, WHEEL_RADIUS, GEAR_RATIO)
+
+
+    private fun motorFactory(name: String): Motor = Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
+
 
     private fun initDrive() {
         initImu()
-        val driveLeftA = Motor(hMap, DRIVE_LEFT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
-        val driveLeftB = Motor(hMap, DRIVE_LEFT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
-
-        driveLeftB.reversed()
-
-        teleValues.addAll(
-            listOf(
-                TelemetryUpdater("Drive Left A", telemetry) { driveLeftA.currentPosition },
-                TelemetryUpdater("Drive Left B", telemetry) { driveLeftB.currentPosition }
-            )
-        )
-//        val driveRightA = Motor(hMap, DRIVE_RIGHT_A_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
-//        val driveRightB = Motor(hMap, DRIVE_RIGHT_B_NAME, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
+        val driveLeftA = driveMotorFactory(DRIVE_LEFT_A_NAME)
+        val driveLeftB = driveMotorFactory(DRIVE_LEFT_B_NAME)
         val driveRightA = Motor(
             DummyMotor(ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
             ULTRAPLANETARY_MAX_RPM,
-            ULTRAPLANETARY_TICKS
+            ULTRAPLANETARY_TICKS, WHEEL_RADIUS, GEAR_RATIO
         )
         val driveRightB = Motor(
             DummyMotor(ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
             ULTRAPLANETARY_MAX_RPM,
-            ULTRAPLANETARY_TICKS
+            ULTRAPLANETARY_TICKS, WHEEL_RADIUS, GEAR_RATIO
         )
 
+        driveLeftB.reversed()
         driveRightB.reversed()
 
-        drive = DifferentialSwerveDrive(
-            driveLeftA,
-            driveLeftB,
-            driveRightA,
-            driveRightB,
-            null, // TODO make this a real IMU when mounted
+//        drive = DifferentialSwerveDrive(
+//            driveLeftA,
+//            driveLeftB,
+//            driveRightA,
+//            driveRightB, imu, // TODO make this a real IMU when mounted
+//        )
+
+        drive = DiffSwerveDrive(
+            driveLeftA to driveLeftB,
+            driveRightA to driveRightB,
+            imu,
+            DiffSwerveConstraints(trackWidth = 16.0),
+            MODULE_PID,
+            TRANSLATIONAL_PID,
+            HEADING_PID
         )
         teleValues.addAll(
             listOf(TelemetryUpdater(
                 "left",
                 telemetry
-            ) { ((drive.getModuleOrientations().first).wrap(-0.5 * PI, 0.5 * PI)) },
+            ) { ((drive.getModuleOrientations().first().radians).wrap(-0.5 * PI, 0.5 * PI)) },
                 TelemetryUpdater(
                     "right",
                     telemetry
-                ) { ((drive.getModuleOrientations().second).wrap(-0.5 * PI, 0.5 * PI)) },
-                TelemetryUpdater(
-                    "target left",
-                    telemetry
-                ) { (drive.getTargetModuleOrientations().first).wrap(-0.5 * PI, 0.5 * PI) },
-                TelemetryUpdater(
-                    "target right",
-                    telemetry
-                ) { (drive.getTargetModuleOrientations().second).wrap(-0.5 * PI, 0.5 * PI) }
+                ) { ((drive.getModuleOrientations().last().radians).wrap(-0.5 * PI, 0.5 * PI)) },
+//                TelemetryUpdater(
+//                    "target left",
+//                    telemetry
+//                ) { (drive.get().first).wrap(-0.5 * PI, 0.5 * PI) },
+//                TelemetryUpdater(
+//                    "target right",
+//                    telemetry
+//                ) { (drive.getTargetModuleOrientations().second).wrap(-0.5 * PI, 0.5 * PI) }
             ))
 
         register(drive)
@@ -110,7 +123,7 @@ class MainRobot(val opMode: EnhancedOpMode) : Robot(opMode) {
         initDrive()
 
         // reset arms whatever
-        opMode.initCommands()
+
         schedule(telemetryUpdate)
     }
 
@@ -125,7 +138,7 @@ class MainRobot(val opMode: EnhancedOpMode) : Robot(opMode) {
      * This runs whenever the robot starts. It is automatically called by the teleOp
      */
     override fun start() {
-        opMode.startCommands()
+
     }
 
 
