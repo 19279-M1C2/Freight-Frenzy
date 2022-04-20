@@ -29,16 +29,23 @@ object Constants {
     @JvmField
     var DRIVE_RIGHT_B_NAME = "drive-right-b"
 
+    @JvmField
+    var SPOOL_MOTOR_NAME = "spool-motor"
+
+    @JvmField
+    var SPOOL_MOTOR_RPM = 150.0
+
+
     @Config
     object Module {
-        // From Motor to drive wheel
+        // From Crown Rev to drive wheel
         @JvmField
-        var GEAR_RATIO = (1.0 / 7.0)
+        var GEAR_RATIO = 4.0 // TODO make this more accurate
         //* (5.0 / 6.0)
 
         // From motor to module rev
         @JvmField
-        var TICKS_PER_REV = 620.0
+        var TICKS_PER_REV = 670.0
 
         @JvmField
         var TRACK_WIDTH: Inch = 16.0
@@ -50,7 +57,7 @@ object Constants {
     @Config
     object Coefficients {
         @JvmField
-        var MODULE_PID = PIDCoefficients(800.0, 0.0, 50.0)
+        var MODULE_PID = PIDCoefficients(9.2, 0.0, 0.0)
 
         @JvmField
         var FEEDFORWARD_COEFFICIENTS = FeedforwardCoefficients(0.00668450761)

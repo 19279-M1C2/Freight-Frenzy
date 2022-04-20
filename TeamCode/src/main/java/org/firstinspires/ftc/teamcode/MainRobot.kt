@@ -7,6 +7,7 @@ import com.amarcolini.joos.command.RobotOpMode
 import com.amarcolini.joos.hardware.Imu
 import com.amarcolini.joos.hardware.Motor
 import com.amarcolini.joos.hardware.drive.DiffSwerveDrive
+import com.amarcolini.joos.kinematics.DiffSwerveKinematics
 import com.amarcolini.joos.trajectory.config.DiffSwerveConstraints
 import com.amarcolini.joos.util.wrap
 import org.firstinspires.ftc.teamcode.Constants.Coefficients.HEADING_PID
@@ -14,83 +15,83 @@ import org.firstinspires.ftc.teamcode.Constants.Coefficients.MODULE_PID
 import org.firstinspires.ftc.teamcode.Constants.Coefficients.TRANSLATIONAL_PID
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_A_NAME
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_B_NAME
+import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_A_NAME
+import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_B_NAME
 import org.firstinspires.ftc.teamcode.Constants.Module.GEAR_RATIO
+import org.firstinspires.ftc.teamcode.Constants.Module.TICKS_PER_REV
+import org.firstinspires.ftc.teamcode.Constants.Module.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
+import org.firstinspires.ftc.teamcode.Constants.SPOOL_MOTOR_NAME
+import org.firstinspires.ftc.teamcode.Constants.SPOOL_MOTOR_RPM
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_MAX_RPM
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_TICKS
 import org.firstinspires.ftc.teamcode.components.DummyMotor
+import org.firstinspires.ftc.teamcode.components.arm.Spool
 import org.firstinspires.ftc.teamcode.util.TelemetryUpdater
 import kotlin.math.PI
 
-
 class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
 
-    private val teleValues = mutableListOf<TelemetryUpdater>()
+    val teleValues = mutableListOf<TelemetryUpdater>()
+    val tele = telemetry
 
     // declare your motors and sensors here. CRS, Servos, DC, Drivetrain
     lateinit var drive: DiffSwerveDrive
     private var imu: Imu? = null
+    lateinit var spool: Spool
 
     private fun driveMotorFactory(name: String): Motor =
-        Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS, WHEEL_RADIUS, GEAR_RATIO)
+        Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, TICKS_PER_REV, WHEEL_RADIUS, GEAR_RATIO)
 
 
     private fun motorFactory(name: String): Motor = Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
 
+    private fun dummyDriveMotorFactory() = Motor(
+        DummyMotor(ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
+        ULTRAPLANETARY_MAX_RPM,
+        ULTRAPLANETARY_TICKS, WHEEL_RADIUS, GEAR_RATIO
+    )
 
     private fun initDrive() {
         initImu()
         val driveLeftA = driveMotorFactory(DRIVE_LEFT_A_NAME)
         val driveLeftB = driveMotorFactory(DRIVE_LEFT_B_NAME)
-        val driveRightA = Motor(
-            DummyMotor(ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
-            ULTRAPLANETARY_MAX_RPM,
-            ULTRAPLANETARY_TICKS, WHEEL_RADIUS, GEAR_RATIO
-        )
-        val driveRightB = Motor(
-            DummyMotor(ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
-            ULTRAPLANETARY_MAX_RPM,
-            ULTRAPLANETARY_TICKS, WHEEL_RADIUS, GEAR_RATIO
-        )
+        val driveRightA = driveMotorFactory(DRIVE_RIGHT_A_NAME)
+        val driveRightB = driveMotorFactory(DRIVE_RIGHT_B_NAME)
 
-        driveLeftB.reversed()
-        driveRightB.reversed()
-
-//        drive = DifferentialSwerveDrive(
-//            driveLeftA,
-//            driveLeftB,
-//            driveRightA,
-//            driveRightB, imu, // TODO make this a real IMU when mounted
-//        )
+        listOf(driveLeftA, driveLeftB, driveRightA, driveRightB).forEach {
+            it.resetEncoder()
+        }
 
         drive = DiffSwerveDrive(
             driveLeftA to driveLeftB,
             driveRightA to driveRightB,
             imu,
-            DiffSwerveConstraints(trackWidth = 16.0),
+            DiffSwerveConstraints(trackWidth = TRACK_WIDTH),
             MODULE_PID,
             TRANSLATIONAL_PID,
             HEADING_PID
         )
+
         teleValues.addAll(
-            listOf(TelemetryUpdater(
-                "left",
-                telemetry
-            ) { ((drive.getModuleOrientations().first().radians).wrap(-0.5 * PI, 0.5 * PI)) },
+            listOf(
+                TelemetryUpdater(
+                    "left",
+                    telemetry
+                ) {
+                    val (first, second) = drive.motors.motors.map { it.rotation }
+                    DiffSwerveKinematics.gearToModuleOrientation(first, second).radians.wrap(-PI / 2, PI / 2)
+                },
                 TelemetryUpdater(
                     "right",
                     telemetry
-                ) { ((drive.getModuleOrientations().last().radians).wrap(-0.5 * PI, 0.5 * PI)) },
-//                TelemetryUpdater(
-//                    "target left",
-//                    telemetry
-//                ) { (drive.get().first).wrap(-0.5 * PI, 0.5 * PI) },
-//                TelemetryUpdater(
-//                    "target right",
-//                    telemetry
-//                ) { (drive.getTargetModuleOrientations().second).wrap(-0.5 * PI, 0.5 * PI) }
-            ))
-
+                ) {
+                    val (_, _, first, second) = drive.motors.motors.map { it.rotation }
+                    DiffSwerveKinematics.gearToModuleOrientation(first, second).radians.wrap(-PI / 2, PI / 2)
+                },
+            )
+        )
+//
         register(drive)
     }
 
@@ -111,6 +112,11 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
         }
     }
 
+    private fun initArm() {
+        val spoolMotor = Motor(hMap, SPOOL_MOTOR_NAME, SPOOL_MOTOR_RPM, 40 * ULTRAPLANETARY_TICKS)
+        spool = Spool(spoolMotor)
+    }
+
     /**
      * [init] runs when the robot is in init.
      * use it to reset servo positions, make sure swerves are aligned, calibrate sensors
@@ -121,6 +127,7 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
         // we can also just init them here based on what is installed on the robot
         // for now im going with the first option
         initDrive()
+//        initArm()
 
         // reset arms whatever
 
