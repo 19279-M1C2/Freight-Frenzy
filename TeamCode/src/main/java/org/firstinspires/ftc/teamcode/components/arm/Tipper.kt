@@ -16,6 +16,10 @@ class Tipper(private val tipper: Servo) : AbstractComponent() {
         var TIPPER_NAME = "tipper"
     }
 
+    init {
+        subcomponents.add(tipper)
+    }
+
     fun setTipper(position: Double) = tipper.goToPosition(position, SERVO_RPM)
     fun tilt() = setTipper(Tipper.INTAKE_TILT_POSITION)
 
