@@ -32,7 +32,7 @@ class MainTeleOp : RobotOpMode<MainRobot>() {
         val driver =
             Command.of {
                 val (leftStickX, leftStickY) = robot.gamepad.p1.getLeftStick()
-                val rightStickX = robot.gamepad.p1.getRightStick().x
+                val rightStickX = robot.gamepad.p1.getRightStick().y
                 val drivePose = Pose2d(leftStickX, leftStickY, rightStickX.rad) * 0.45
 
                 // update some telemetry

@@ -1,17 +1,21 @@
 package org.firstinspires.ftc.teamcode
 
-//import org.firstinspires.ftc.teamcode.components.drive.DifferentialSwerveDrive
 import com.amarcolini.joos.command.FunctionalCommand
 import com.amarcolini.joos.command.Robot
 import com.amarcolini.joos.command.RobotOpMode
 import com.amarcolini.joos.hardware.Imu
 import com.amarcolini.joos.hardware.Motor
+import com.amarcolini.joos.hardware.Servo
 import com.amarcolini.joos.hardware.drive.DiffSwerveDrive
 import com.amarcolini.joos.kinematics.DiffSwerveKinematics
-import com.amarcolini.joos.trajectory.config.DiffSwerveConstraints
 import com.amarcolini.joos.util.wrap
+import com.qualcomm.robotcore.hardware.DcMotorEx
+import com.qualcomm.robotcore.hardware.TouchSensor
+import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_RPM
+import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_TPR
 import org.firstinspires.ftc.teamcode.Constants.Coefficients.HEADING_PID
 import org.firstinspires.ftc.teamcode.Constants.Coefficients.MODULE_PID
+import org.firstinspires.ftc.teamcode.Constants.Coefficients.TRAJECTORY_CONSTRAINTS
 import org.firstinspires.ftc.teamcode.Constants.Coefficients.TRANSLATIONAL_PID
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_A_NAME
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_B_NAME
@@ -19,14 +23,14 @@ import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_A_NAME
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_B_NAME
 import org.firstinspires.ftc.teamcode.Constants.Module.GEAR_RATIO
 import org.firstinspires.ftc.teamcode.Constants.Module.TICKS_PER_REV
-import org.firstinspires.ftc.teamcode.Constants.Module.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
-import org.firstinspires.ftc.teamcode.Constants.SPOOL_MOTOR_NAME
-import org.firstinspires.ftc.teamcode.Constants.SPOOL_MOTOR_RPM
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_MAX_RPM
 import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_TICKS
 import org.firstinspires.ftc.teamcode.components.DummyMotor
-import org.firstinspires.ftc.teamcode.components.arm.Spool
+import org.firstinspires.ftc.teamcode.components.arm.Arm
+import org.firstinspires.ftc.teamcode.components.arm.Intake
+import org.firstinspires.ftc.teamcode.components.arm.Tipper
+import org.firstinspires.ftc.teamcode.components.arm.Tipper.Tipper.TIPPER_NAME
 import org.firstinspires.ftc.teamcode.util.TelemetryUpdater
 import kotlin.math.PI
 
@@ -38,7 +42,7 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
     // declare your motors and sensors here. CRS, Servos, DC, Drivetrain
     lateinit var drive: DiffSwerveDrive
     private var imu: Imu? = null
-    lateinit var spool: Spool
+    lateinit var arm: Arm
 
     private fun driveMotorFactory(name: String): Motor =
         Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, TICKS_PER_REV, WHEEL_RADIUS, GEAR_RATIO)
@@ -59,6 +63,8 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
         val driveRightA = driveMotorFactory(DRIVE_RIGHT_A_NAME)
         val driveRightB = driveMotorFactory(DRIVE_RIGHT_B_NAME)
 
+        // reverse a of both
+
         listOf(driveLeftA, driveLeftB, driveRightA, driveRightB).forEach {
             it.resetEncoder()
         }
@@ -67,7 +73,7 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
             driveLeftA to driveLeftB,
             driveRightA to driveRightB,
             imu,
-            DiffSwerveConstraints(trackWidth = TRACK_WIDTH),
+            TRAJECTORY_CONSTRAINTS,
             MODULE_PID,
             TRANSLATIONAL_PID,
             HEADING_PID
@@ -113,8 +119,12 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
     }
 
     private fun initArm() {
-        val spoolMotor = Motor(hMap, SPOOL_MOTOR_NAME, SPOOL_MOTOR_RPM, 40 * ULTRAPLANETARY_TICKS)
-        spool = Spool(spoolMotor)
+        arm = Arm(
+            Motor(hMap, Arm.Arm.SPOOL_NAME, CORE_HEX_RPM, CORE_HEX_TPR),
+            Tipper(Servo(hMap, TIPPER_NAME)),
+            hMap.get(TouchSensor::class.java, Arm.Arm.LIMIT_SWITCH_NAME),
+            Intake(hMap.get(DcMotorEx::class.java, Intake.Intake.NAME), CORE_HEX_RPM, CORE_HEX_TPR)
+        )
     }
 
     /**

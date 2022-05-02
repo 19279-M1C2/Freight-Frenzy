@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode
 
 import com.acmerobotics.dashboard.config.Config
-import com.amarcolini.joos.control.FeedforwardCoefficients
 import com.amarcolini.joos.control.PIDCoefficients
-import com.amarcolini.joos.trajectory.config.GenericConstraints
+import com.amarcolini.joos.trajectory.config.DiffSwerveConstraints
 import org.firstinspires.ftc.teamcode.util.Inch
 
 @Config
 object Constants {
+    // stick any constants that aren't associated with a specific subsystem here
+
     // all distances in M
 
     @JvmField
@@ -29,23 +30,25 @@ object Constants {
     @JvmField
     var DRIVE_RIGHT_B_NAME = "drive-right-b"
 
-    @JvmField
-    var SPOOL_MOTOR_NAME = "spool-motor"
 
     @JvmField
-    var SPOOL_MOTOR_RPM = 150.0
+    var CORE_HEX_RPM = 150.0
 
+    @JvmField
+    var CORE_HEX_TPR = 1120.0
+
+    @JvmField
+    var SERVO_RPM = 150.0
 
     @Config
     object Module {
         // From Crown Rev to drive wheel
         @JvmField
-        var GEAR_RATIO = 4.0 // TODO make this more accurate
-        //* (5.0 / 6.0)
+        var GEAR_RATIO = 4.0
 
         // From motor to module rev
         @JvmField
-        var TICKS_PER_REV = 670.0
+        var TICKS_PER_REV = 850.0
 
         @JvmField
         var TRACK_WIDTH: Inch = 16.0
@@ -57,13 +60,10 @@ object Constants {
     @Config
     object Coefficients {
         @JvmField
-        var MODULE_PID = PIDCoefficients(9.2, 0.0, 0.0)
+        var MODULE_PID = PIDCoefficients(50.0, 1.0, 2.0)
 
         @JvmField
-        var FEEDFORWARD_COEFFICIENTS = FeedforwardCoefficients(0.00668450761)
-
-        @JvmField
-        var TRAJECTORY_CONSTRAINTS = GenericConstraints()
+        var TRAJECTORY_CONSTRAINTS = DiffSwerveConstraints()
 
         @JvmField
         var TRANSLATIONAL_PID = PIDCoefficients(1.0, 0.0, 0.5)
