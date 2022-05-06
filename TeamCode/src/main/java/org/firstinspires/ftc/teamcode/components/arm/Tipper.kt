@@ -20,11 +20,11 @@ class Tipper(private val tipper: Servo) : AbstractComponent() {
         subcomponents.add(tipper)
     }
 
-    fun setTipper(position: Double) = tipper.goToPosition(position, SERVO_RPM)
-    fun tilt() = setTipper(Tipper.INTAKE_TILT_POSITION)
+    fun setPosition(position: Double) = tipper.goToPosition(position, SERVO_RPM)
+    fun tilt() = setPosition(Tipper.INTAKE_TILT_POSITION)
 
-    fun tip() = setTipper(1.0)
-    fun untip() = setTipper(0.0)
+    fun tip() = setPosition(1.0)
+    fun untip() = setPosition(0.0)
 
     val tipped
         get() = tipper.position > Tipper.INTAKE_TILT_POSITION

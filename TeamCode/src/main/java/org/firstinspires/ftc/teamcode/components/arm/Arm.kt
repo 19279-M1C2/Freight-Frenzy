@@ -8,10 +8,10 @@ import com.amarcolini.joos.hardware.Motor
 import com.qualcomm.robotcore.hardware.TouchSensor
 
 class Arm(
-    private val spool: Motor,
-    private val tipper: Tipper,
-    private val limitSwitch: TouchSensor,
-    private val intake: Intake
+    val spool: Motor,
+    val tipper: Tipper,
+    val limitSwitch: TouchSensor,
+    val intake: Intake
 ) :
     AbstractComponent() {
     @Config
@@ -67,6 +67,4 @@ class Arm(
         if (limitTipped()) spool.power = 0.0
         else spool.power = power
     }
-
-    fun tilt() = tipper.toggleTip()
 }

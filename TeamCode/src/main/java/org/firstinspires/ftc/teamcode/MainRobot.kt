@@ -119,11 +119,16 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
     }
 
     private fun initArm() {
+        val spool = Motor(hMap, Arm.Arm.SPOOL_NAME, CORE_HEX_RPM, CORE_HEX_TPR)
+        val intake = Intake(hMap.get(DcMotorEx::class.java, Intake.Intake.NAME), CORE_HEX_RPM, CORE_HEX_TPR)
+
+        spool.resetEncoder()
+
         arm = Arm(
-            Motor(hMap, Arm.Arm.SPOOL_NAME, CORE_HEX_RPM, CORE_HEX_TPR),
+            spool,
             Tipper(Servo(hMap, TIPPER_NAME)),
             hMap.get(TouchSensor::class.java, Arm.Arm.LIMIT_SWITCH_NAME),
-            Intake(hMap.get(DcMotorEx::class.java, Intake.Intake.NAME), CORE_HEX_RPM, CORE_HEX_TPR)
+            intake
         )
     }
 

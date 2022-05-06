@@ -54,7 +54,7 @@ object Constants {
         var TRACK_WIDTH: Inch = 16.0
 
         @JvmField
-        var WHEEL_RADIUS: Inch = 2.0
+        var WHEEL_RADIUS: Inch = 2.5 / 2
     }
 
     @Config
