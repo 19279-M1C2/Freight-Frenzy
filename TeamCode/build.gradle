@@ -1,7 +1,3 @@
-plugins {
-    id 'kotlin-android'
-}
-
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
@@ -16,5 +12,5 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 
 dependencies {
     implementation project(':FtcRobotController')
-    annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
+    kapt files('lib/OpModeAnnotationProcessor.jar')
 }

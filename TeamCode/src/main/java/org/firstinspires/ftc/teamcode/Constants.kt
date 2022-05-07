@@ -2,10 +2,11 @@ package org.firstinspires.ftc.teamcode
 
 import com.acmerobotics.dashboard.config.Config
 import com.amarcolini.joos.control.PIDCoefficients
+import com.amarcolini.joos.dashboard.JoosConfig
 import com.amarcolini.joos.trajectory.config.DiffSwerveConstraints
 import org.firstinspires.ftc.teamcode.util.Inch
 
-@Config
+@JoosConfig
 object Constants {
     // stick any constants that aren't associated with a specific subsystem here
 
@@ -48,7 +49,7 @@ object Constants {
 
         // From motor to module rev
         @JvmField
-        var TICKS_PER_REV = 850.0
+        var TICKS_PER_REV = 921.0
 
         @JvmField
         var TRACK_WIDTH: Inch = 16.0
@@ -63,7 +64,7 @@ object Constants {
         var MODULE_PID = PIDCoefficients(50.0, 1.0, 2.0)
 
         @JvmField
-        var TRAJECTORY_CONSTRAINTS = DiffSwerveConstraints()
+        var TRAJECTORY_CONSTRAINTS = DiffSwerveConstraints(trackWidth = Module.TRACK_WIDTH)
 
         @JvmField
         var TRANSLATIONAL_PID = PIDCoefficients(1.0, 0.0, 0.5)
