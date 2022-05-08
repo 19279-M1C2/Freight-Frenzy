@@ -4,6 +4,7 @@ import com.amarcolini.joos.command.Command
 import com.amarcolini.joos.command.RobotOpMode
 import com.amarcolini.joos.command.SuperTelemetry
 import com.amarcolini.joos.geometry.Pose2d
+import com.amarcolini.joos.geometry.Vector2d
 import com.amarcolini.joos.kinematics.DiffSwerveKinematics
 import com.amarcolini.joos.util.rad
 import com.amarcolini.joos.util.wrap
@@ -32,15 +33,21 @@ class MainTeleOp : RobotOpMode<MainRobot>() {
         val driver =
             Command.of {
                 val (leftStickX, leftStickY) = robot.gamepad.p1.getLeftStick()
-                val rightStickX = robot.gamepad.p1.getRightStick().y
-                val drivePose = Pose2d(leftStickX, leftStickY, rightStickX.rad) * 0.45
+                val rightStickX = robot.gamepad.p1.getRightStick().x
+                var driveVector = Vector2d(leftStickX, leftStickY)
+
+                robot.imu?.let {
+                    driveVector = driveVector.rotated(it.heading)
+                }
+
+                val drivePose = Pose2d(driveVector, rightStickX.rad)
 
                 // update some telemetry
                 val (leftTarget, rightTarget) = DiffSwerveKinematics.robotToModuleOrientations(drivePose, TRACK_WIDTH)
                 robotTargetTele.first.setValue(leftTarget.radians.wrap(-PI / 2, PI / 2))
                 robotTargetTele.second.setValue(rightTarget.radians.wrap(-PI / 2, PI / 2))
 
-                drive.setDrivePower(drivePose)
+                drive.setDrivePower(drivePose * 0.45)
             }.requires(drive).onEnd { drive.setDrivePower(Pose2d(0.0, 0.0, 0.0)) }
                 .runUntil { false }
 

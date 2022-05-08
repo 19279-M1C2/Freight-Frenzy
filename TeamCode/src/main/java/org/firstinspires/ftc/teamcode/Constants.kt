@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode
 
 import com.acmerobotics.dashboard.config.Config
+import com.amarcolini.joos.control.FeedforwardCoefficients
 import com.amarcolini.joos.control.PIDCoefficients
 import com.amarcolini.joos.dashboard.JoosConfig
 import com.amarcolini.joos.trajectory.config.DiffSwerveConstraints
 import org.firstinspires.ftc.teamcode.util.Inch
+import kotlin.math.PI
 
 @JoosConfig
 object Constants {
@@ -49,7 +51,7 @@ object Constants {
 
         // From motor to module rev
         @JvmField
-        var TICKS_PER_REV = 921.0
+        var TICKS_PER_REV = 850.0
 
         @JvmField
         var TRACK_WIDTH: Inch = 16.0
@@ -61,7 +63,7 @@ object Constants {
     @Config
     object Coefficients {
         @JvmField
-        var MODULE_PID = PIDCoefficients(50.0, 1.0, 2.0)
+        var MODULE_PID = PIDCoefficients(100.0, 0.0, 0.0)
 
         @JvmField
         var TRAJECTORY_CONSTRAINTS = DiffSwerveConstraints(trackWidth = Module.TRACK_WIDTH)
@@ -71,5 +73,12 @@ object Constants {
 
         @JvmField
         var HEADING_PID = PIDCoefficients(1.0, 0.0, 0.5)
+
+        @JvmField
+        var FEED_FORWARD_COEFFICIENTS = FeedforwardCoefficients(
+            1 / (ULTRAPLANETARY_MAX_RPM / 60 * Module.GEAR_RATIO * Module.WHEEL_RADIUS * PI),
+            0.0,
+            0.0
+        )
     }
 }

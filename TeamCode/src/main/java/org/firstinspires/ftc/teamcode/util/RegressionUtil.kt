@@ -53,30 +53,30 @@ object RegressionUtil {
         powerSamples: List<Double>, fitStatic: Boolean,
         file: File?
     ): RampResult {
-        if (file != null) {
-            try {
-                PrintWriter(file).use { pw ->
-                    pw.println("time,position,power")
-                    for (i in timeSamples.indices) {
-                        val time = timeSamples[i]
-                        val pos = positionSamples[i]
-                        val power = powerSamples[i]
-                        pw.println("$time,$pos,$power")
-                    }
-                }
-            } catch (e: FileNotFoundException) {
-                // ignore
-            }
-        }
-        val velSamples = numericalDerivative(timeSamples, positionSamples)
+//        if (file != null) {
+//            try {
+//                PrintWriter(file).use { pw ->
+//                    pw.println("time,position,power")
+//                    for (i in timeSamples.indices) {
+//                        val time = timeSamples[i]
+//                        val pos = positionSamples[i]
+//                        val power = powerSamples[i]
+//                        pw.println("$time,$pos,$power")
+//                    }
+//                }
+//            } catch (e: FileNotFoundException) {
+//                // ignore
+//            }
+//        }
+//        val velSamples = numericalDerivative(timeSamples, positionSamples)
         val rampReg = SimpleRegression(fitStatic)
         for (i in timeSamples.indices) {
-            val vel = velSamples[i]
-            val power = powerSamples[i]
-            rampReg.addData(vel, power)
+//            val vel = velSamples[i]
+//            val power = powerSamples[i]
+//            rampReg.addData(vel, power)
         }
         return RampResult(
-            Math.abs(rampReg.slope), Math.abs(rampReg.intercept),
+            abs(rampReg.slope), abs(rampReg.intercept),
             rampReg.rSquare
         )
     }

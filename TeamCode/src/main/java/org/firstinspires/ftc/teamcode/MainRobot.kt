@@ -33,6 +33,7 @@ import org.firstinspires.ftc.teamcode.components.arm.Tipper
 import org.firstinspires.ftc.teamcode.components.arm.Tipper.Tipper.TIPPER_NAME
 import org.firstinspires.ftc.teamcode.util.TelemetryUpdater
 import kotlin.math.PI
+import kotlin.math.abs
 
 class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
 
@@ -41,7 +42,7 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
 
     // declare your motors and sensors here. CRS, Servos, DC, Drivetrain
     lateinit var drive: DiffSwerveDrive
-    private var imu: Imu? = null
+    var imu: Imu? = null
     lateinit var arm: Arm
 
     private fun driveMotorFactory(name: String): Motor =
@@ -62,12 +63,12 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
         val driveLeftB = driveMotorFactory(DRIVE_LEFT_B_NAME)
         val driveRightA = driveMotorFactory(DRIVE_RIGHT_A_NAME)
         val driveRightB = driveMotorFactory(DRIVE_RIGHT_B_NAME)
-
-        // reverse a of both
-
-        listOf(driveLeftA, driveLeftB, driveRightA, driveRightB).forEach {
-            it.resetEncoder()
-        }
+//
+//        // reverse a of both
+//
+//        listOf(driveLeftA, driveLeftB, driveRightA, driveRightB).forEach {
+//            it.resetEncoder()
+//        }
 
         drive = DiffSwerveDrive(
             driveLeftA to driveLeftB,
@@ -78,6 +79,10 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
             TRANSLATIONAL_PID,
             HEADING_PID
         )
+
+        drive.motors.motors.forEach {
+            it.feedforwardCoefficients
+        }
 
         teleValues.addAll(
             listOf(
@@ -97,7 +102,42 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
                 },
             )
         )
-//
+
+        // add all current values to televalues
+        teleValues.addAll(
+            listOf(
+                TelemetryUpdater(
+                    "leftA",
+                    telemetry
+                ) { abs(drive.motors.motors[0].rawVelocity) },
+                TelemetryUpdater(
+                    "leftB",
+                    telemetry
+                ) { abs(drive.motors.motors[1].rawVelocity) },
+                TelemetryUpdater(
+                    "rightA",
+                    telemetry
+                ) { abs(drive.motors.motors[2].rawVelocity) },
+                TelemetryUpdater(
+                    "rightB",
+                    telemetry
+                ) { abs(drive.motors.motors[3].rawVelocity) },
+            )
+        )
+
+
+        // add module diff value
+        teleValues.add(
+            TelemetryUpdater(
+                "moduleDiff",
+                telemetry
+            ) {
+                val (first, second, third, forth) = drive.motors.motors.map { it.rotation }
+                val left = DiffSwerveKinematics.gearToModuleOrientation(first, second).radians.wrap(-PI / 2, PI / 2)
+                val right = DiffSwerveKinematics.gearToModuleOrientation(third, forth).radians.wrap(-PI / 2, PI / 2)
+                left - right
+            }
+        )
         register(drive)
     }
 
