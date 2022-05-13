@@ -7,6 +7,7 @@ import com.amarcolini.joos.geometry.Pose2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.MainRobot
 import org.firstinspires.ftc.teamcode.util.Inch
+import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 
 
 @TeleOp(name = "StraightTest", group = "Tuning")
@@ -24,9 +25,9 @@ class StraightTest : RobotOpMode<MainRobot>() {
 
         robot.schedule(SequentialCommand(false, follow, BasicCommand {
             val poseEstimate: Pose2d = drive.poseEstimate
-            telemetry.addData("finalX", poseEstimate.x)
-            telemetry.addData("finalY", poseEstimate.y)
-            telemetry.addData("finalHeading", poseEstimate.heading)
+            RobotTelemetry.addData("finalX", poseEstimate.x)
+            RobotTelemetry.addData("finalY", poseEstimate.y)
+            RobotTelemetry.addData("finalHeading", poseEstimate.heading)
         }))
     }
 

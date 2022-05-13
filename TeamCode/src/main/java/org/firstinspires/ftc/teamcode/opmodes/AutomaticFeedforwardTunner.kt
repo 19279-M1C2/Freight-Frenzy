@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.util.LoggingUtil.getLogFile
 import org.firstinspires.ftc.teamcode.util.RegressionUtil
 import org.firstinspires.ftc.teamcode.util.RegressionUtil.fitAccelData
 import org.firstinspires.ftc.teamcode.util.RegressionUtil.fitRampData
+import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 import kotlin.math.sqrt
 
 
@@ -43,26 +44,26 @@ class AutomaticFeedforwardTunner : RobotOpMode<MainRobot>() {
             false,
             FunctionalCommand(
                 init = {
-                    robot.tele.clearAll()
-                    robot.tele.addLine("Would you like to fit kStatic?")
-                    robot.tele.addLine("Press (Y/Δ) for yes, (B/O) for no")
+                    RobotTelemetry.clearAll()
+                    RobotTelemetry.addLine("Would you like to fit kStatic?")
+                    RobotTelemetry.addLine("Press (Y/Δ) for yes, (B/O) for no")
                 },
                 isFinished = { gamepad1.y || gamepad1.b },
                 end = { if (gamepad1.y) fitIntercept = true }),
             FunctionalCommand(
                 init = {
-                    robot.tele.clearAll()
-                    robot.tele.addLine(
+                    RobotTelemetry.clearAll()
+                    RobotTelemetry.addLine(
                         Misc.formatInvariant(
                             "Place your robot on the field with at least %.2f in of room in front", DISTANCE
                         )
                     )
-                    robot.tele.addLine("Press (Y/Δ) to begin")
+                    RobotTelemetry.addLine("Press (Y/Δ) to begin")
                 },
                 isFinished = { gamepad1.y },
                 end = {
-                    robot.tele.clearAll()
-                    robot.tele.addLine("Running...")
+                    RobotTelemetry.clearAll()
+                    RobotTelemetry.addLine("Running...")
                 }),
             FunctionalCommand(
                 init = { startTime = clock.seconds() },
@@ -92,20 +93,20 @@ class AutomaticFeedforwardTunner : RobotOpMode<MainRobot>() {
                         )
                     )
 //
-//                    robot.tele.clearAll()
-//                    robot.tele.addLine("Quasi-static ramp up test complete")
+//                    RobotTelemetry.clearAll()
+//                    RobotTelemetry.addLine("Quasi-static ramp up test complete")
 //
 //                    val (kV, kStatic, rSquare) = rampResult
 //
 //                    if (fitIntercept) {
-//                        robot.tele.addLine(
+//                        RobotTelemetry.addLine(
 //                            Misc.formatInvariant(
 //                                "kV = %.5f, kStatic = %.5f (R^2 = %.2f)",
 //                                kV, kStatic, rSquare
 //                            )
 //                        )
 //                    } else {
-//                        robot.tele.addLine(
+//                        RobotTelemetry.addLine(
 //                            Misc.formatInvariant(
 //                                "kV = %.5f (R^2 = %.2f)",
 //                                kStatic, rSquare
@@ -122,8 +123,8 @@ class AutomaticFeedforwardTunner : RobotOpMode<MainRobot>() {
             false,
             FunctionalCommand(
                 init = {
-                    robot.tele.addLine("Would you like to fit kA?")
-                    robot.tele.addLine("Press (Y/Δ) for yes, (B/O) for no")
+                    RobotTelemetry.addLine("Would you like to fit kA?")
+                    RobotTelemetry.addLine("Press (Y/Δ) for yes, (B/O) for no")
 
                 },
                 isFinished = { gamepad1.y || gamepad1.b },
@@ -137,13 +138,13 @@ class AutomaticFeedforwardTunner : RobotOpMode<MainRobot>() {
                     false,
                     FunctionalCommand(
                         init = {
-                            telemetry.clearAll()
-                            telemetry.addLine("Place the robot back in its starting position")
-                            telemetry.addLine("Press (Y/Δ) to continue")
+                            RobotTelemetry.clearAll()
+                            RobotTelemetry.addLine("Place the robot back in its starting position")
+                            RobotTelemetry.addLine("Press (Y/Δ) to continue")
                         }, isFinished = { gamepad1.y },
                         end = {
-                            telemetry.clearAll()
-                            telemetry.addLine("Running...")
+                            RobotTelemetry.clearAll()
+                            RobotTelemetry.addLine("Running...")
                         }),
 
                     FunctionalCommand(
@@ -181,9 +182,9 @@ class AutomaticFeedforwardTunner : RobotOpMode<MainRobot>() {
                                 )
                             )
 
-                            telemetry.clearAll()
-                            telemetry.addLine("Constant power test complete")
-                            telemetry.addLine(
+                            RobotTelemetry.clearAll()
+                            RobotTelemetry.addLine("Constant power test complete")
+                            RobotTelemetry.addLine(
                                 Misc.formatInvariant(
                                     "kA = %.5f (R^2 = %.2f)",
                                     kA, rSquare

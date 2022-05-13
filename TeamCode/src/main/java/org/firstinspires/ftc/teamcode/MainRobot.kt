@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode
 
-import com.amarcolini.joos.command.FunctionalCommand
 import com.amarcolini.joos.command.Robot
 import com.amarcolini.joos.command.RobotOpMode
 import com.amarcolini.joos.hardware.Imu
@@ -10,7 +9,6 @@ import com.amarcolini.joos.hardware.drive.DiffSwerveDrive
 import com.amarcolini.joos.kinematics.DiffSwerveKinematics
 import com.amarcolini.joos.util.wrap
 import com.qualcomm.robotcore.hardware.DcMotorEx
-import com.qualcomm.robotcore.hardware.TouchSensor
 import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_RPM
 import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_TPR
 import org.firstinspires.ftc.teamcode.Constants.Coefficients.HEADING_PID
@@ -30,16 +28,11 @@ import org.firstinspires.ftc.teamcode.components.DummyMotor
 import org.firstinspires.ftc.teamcode.components.arm.Arm
 import org.firstinspires.ftc.teamcode.components.arm.Intake
 import org.firstinspires.ftc.teamcode.components.arm.Tipper
-import org.firstinspires.ftc.teamcode.components.arm.Tipper.Tipper.TIPPER_NAME
-import org.firstinspires.ftc.teamcode.util.TelemetryUpdater
+import org.firstinspires.ftc.teamcode.components.arm.Tipper.Companion.TIPPER_NAME
+import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 import kotlin.math.PI
-import kotlin.math.abs
 
 class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
-
-    val teleValues = mutableListOf<TelemetryUpdater>()
-    val tele = telemetry
-
     // declare your motors and sensors here. CRS, Servos, DC, Drivetrain
     lateinit var drive: DiffSwerveDrive
     var imu: Imu? = null
@@ -47,7 +40,6 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
 
     private fun driveMotorFactory(name: String): Motor =
         Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, TICKS_PER_REV, WHEEL_RADIUS, GEAR_RATIO)
-
 
     private fun motorFactory(name: String): Motor = Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
 
@@ -63,12 +55,6 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
         val driveLeftB = driveMotorFactory(DRIVE_LEFT_B_NAME)
         val driveRightA = driveMotorFactory(DRIVE_RIGHT_A_NAME)
         val driveRightB = driveMotorFactory(DRIVE_RIGHT_B_NAME)
-//
-//        // reverse a of both
-//
-//        listOf(driveLeftA, driveLeftB, driveRightA, driveRightB).forEach {
-//            it.resetEncoder()
-//        }
 
         drive = DiffSwerveDrive(
             driveLeftA to driveLeftB,
@@ -84,60 +70,15 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
             it.feedforwardCoefficients
         }
 
-        teleValues.addAll(
-            listOf(
-                TelemetryUpdater(
-                    "left",
-                    telemetry
-                ) {
-                    val (first, second) = drive.motors.motors.map { it.rotation }
-                    DiffSwerveKinematics.gearToModuleOrientation(first, second).radians.wrap(-PI / 2, PI / 2)
-                },
-                TelemetryUpdater(
-                    "right",
-                    telemetry
-                ) {
-                    val (_, _, first, second) = drive.motors.motors.map { it.rotation }
-                    DiffSwerveKinematics.gearToModuleOrientation(first, second).radians.wrap(-PI / 2, PI / 2)
-                },
-            )
-        )
+        RobotTelemetry.addTelemetry(
+            "left" to {
+                val (first, second) = drive.motors.motors.map { it.rotation }
+                DiffSwerveKinematics.gearToModuleOrientation(first, second).radians.wrap(-PI / 2, PI / 2)
+            }, "right" to {
+                val (_, _, first, second) = drive.motors.motors.map { it.rotation }
+                DiffSwerveKinematics.gearToModuleOrientation(first, second).radians.wrap(-PI / 2, PI / 2)
+            })
 
-        // add all current values to televalues
-        teleValues.addAll(
-            listOf(
-                TelemetryUpdater(
-                    "leftA",
-                    telemetry
-                ) { abs(drive.motors.motors[0].rawVelocity) },
-                TelemetryUpdater(
-                    "leftB",
-                    telemetry
-                ) { abs(drive.motors.motors[1].rawVelocity) },
-                TelemetryUpdater(
-                    "rightA",
-                    telemetry
-                ) { abs(drive.motors.motors[2].rawVelocity) },
-                TelemetryUpdater(
-                    "rightB",
-                    telemetry
-                ) { abs(drive.motors.motors[3].rawVelocity) },
-            )
-        )
-
-
-        // add module diff value
-        teleValues.add(
-            TelemetryUpdater(
-                "moduleDiff",
-                telemetry
-            ) {
-                val (first, second, third, forth) = drive.motors.motors.map { it.rotation }
-                val left = DiffSwerveKinematics.gearToModuleOrientation(first, second).radians.wrap(-PI / 2, PI / 2)
-                val right = DiffSwerveKinematics.gearToModuleOrientation(third, forth).radians.wrap(-PI / 2, PI / 2)
-                left - right
-            }
-        )
         register(drive)
     }
 
@@ -159,17 +100,20 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
     }
 
     private fun initArm() {
-        val spool = Motor(hMap, Arm.Arm.SPOOL_NAME, CORE_HEX_RPM, CORE_HEX_TPR)
-        val intake = Intake(hMap.get(DcMotorEx::class.java, Intake.Intake.NAME), CORE_HEX_RPM, CORE_HEX_TPR)
+        val spool = Motor(hMap, Arm.SPOOL_NAME, CORE_HEX_RPM, CORE_HEX_TPR)
+        val intake = Intake(hMap.get(DcMotorEx::class.java, Intake.NAME), CORE_HEX_RPM, CORE_HEX_TPR)
 
         spool.resetEncoder()
 
         arm = Arm(
             spool,
             Tipper(Servo(hMap, TIPPER_NAME)),
-            hMap.get(TouchSensor::class.java, Arm.Arm.LIMIT_SWITCH_NAME),
+            null,
+//            hMap.get(TouchSensor::class.java, Arm.Arm.LIMIT_SWITCH_NAME),
             intake
         )
+
+        register(arm)
     }
 
     /**
@@ -178,23 +122,14 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
      * make sure to add telemetry too
      */
     override fun init() {
+        RobotTelemetry.telemetry = telemetry
+        register(RobotTelemetry)
         // we have a few options here. We can init the subsystems in the opmodes to seperate out responsiblities
         // we can also just init them here based on what is installed on the robot
         // for now im going with the first option
         initDrive()
-//        initArm()
-
-        // reset arms whatever
-
-        schedule(telemetryUpdate)
+        initArm()
     }
-
-    private val telemetryUpdate = FunctionalCommand(
-        execute = {
-            teleValues.forEach { it.update() }
-        },
-        isFinished = { false }
-    )
 
     /**
      * This runs whenever the robot starts. It is automatically called by the teleOp
@@ -202,38 +137,4 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
     override fun start() {
 
     }
-
-
-//        when (mode) {
-//            Mode.TeleOpMain -> {
-//                val driver =
-//                    Command.of {
-//                        val leftStick = gamepad.p1.getLeftStick()
-//                        val rightStick = gamepad.p1.getRightStick()
-//
-//                        drive.setDrivePower(Pose2d(leftStick.x, leftStick.y, rightStick.x))
-//                    }.requires(drive)
-//                        .onEnd { drive.setDrivePower(Pose2d(0.0, 0.0, 0.0)) }
-//                        .runUntil(false)
-//
-//                schedule(driver)
-//            }
-//            Mode.Auto -> {
-//
-//                // When building trajectories. You want to ensure continuity (think rational functions)
-//                // So you want to do one of two things.
-//                // 1. Split into separate commands
-//                // 2. just use splines and it'll automatically make cool curves
-//
-//                val firstPath = drive.followTrajectory(
-//                    drive.trajectoryBuilder(Pose2d(0.0, 0.0, 5.0))
-//                        .splineTo(Vector2d(0.0, 20.0), 90.0)
-//                        .lineTo(Vector2d(20.0, 20.0))
-//                        .splineTo(Vector2d(40.0, 2.0), 20.0)
-//                        .build()
-//                )
-//
-//                schedule(firstPath)
-//            }
-//        }
 }

@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.opmodes
 
 import com.amarcolini.joos.command.RobotOpMode
 import com.amarcolini.joos.command.SequentialCommand
+import com.amarcolini.joos.command.WaitCommand
 import com.amarcolini.joos.geometry.Pose2d
 import com.amarcolini.joos.util.deg
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.MainRobot
 import org.firstinspires.ftc.teamcode.components.Vision
 import org.firstinspires.ftc.teamcode.components.arm.Arm
+import org.firstinspires.ftc.teamcode.components.arm.Tipper
+import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 import org.firstinspires.ftc.teamcode.util.toLevel
 
 @Autonomous(name = "Freight Side", group = "Auto")
@@ -29,15 +32,16 @@ class FreightSideAuto : RobotOpMode<MainRobot>() {
         val (loc, coord) = vision.getPosition()
 
         val level = loc.toLevel()
-        robot.tele.addLine("Height: $level")
-        robot.tele.addLine("Coord: $coord")
+        RobotTelemetry.addLine("Height: $level")
+        RobotTelemetry.addLine("Coord: $coord")
 
         val dropCommand =
             SequentialCommand(
                 true,
                 robot.arm.goToPosition(level),
-                robot.arm.tipper.tilt(),
-                robot.arm.tipper.untip(),
+                robot.arm.tipper.setPosition(Tipper.TipperPosition.TIPPED),
+                WaitCommand(0.5),
+                robot.arm.tipper.setPosition(Tipper.TipperPosition.SECOND_TILT),
                 robot.arm.goToPosition(Arm.Position.FLOOR)
             )
 
@@ -61,6 +65,18 @@ class FreightSideAuto : RobotOpMode<MainRobot>() {
             .splineToLinearHeading(hubPoint, (-122).deg)
             .build()
 
+        // create a command that goes to the depot and then to hub and then repeats until there are 5 seconds left
+        val auto = SequentialCommand(
+            true,
+            robot.drive.followTrajectory(initToHub),
+            dropCommand,
+            robot.drive.followTrajectory(toDepot),
+            intakeCommand,
+            robot.drive.followTrajectory(toHub),
+            dropCommand,
+            robot.drive.followTrajectory(toDepot)
+        )
 
+        robot.schedule(auto)
     }
 }

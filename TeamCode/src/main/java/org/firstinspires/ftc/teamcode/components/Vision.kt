@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.components
 
 
-import com.acmerobotics.dashboard.config.Config
 import com.amarcolini.joos.command.AbstractComponent
+import com.amarcolini.joos.dashboard.JoosConfig
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.ClassFactory
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
@@ -12,14 +12,12 @@ import org.firstinspires.ftc.teamcode.R
 
 
 class Vision(hMap: HardwareMap) : AbstractComponent() {
-    @Config
-    object Vision {
-        @JvmField
+    @JoosConfig("Vision")
+    companion object {
         var VUFORIA_KEY =
             "AQfsT7f/////AAABmUob5YNsRUaTsw8OCAwh8U0CkBoG6Niyn6ObvMlbI5xX/mYd1kc2pIXrQ+m6UEf/rZAbLSs4vY3PJe5VfIqPXMBZxEuBI8uVrRcPjWs60w8zBRmwf1z3akCWiwvMu3QNTei9oWkZ4hAWILWYLq2QEBlPjmGmEwnTM6VmJAPVSXRD4ZtBdZ7fKcrxlSwdMz1bZiEZZJEdQHTqqXY31zH3cvu9TOZxvYzFm94/JryfQSnhqaS2qOYen02JvqmDsWN8JpTeUCiDLOyX02femfeiZffIvu2zntQyoNUevcDYPptjYYlBGSDP6oTT9iOrvqf4tWyJeeO+kEMqt2Kd4KnEDMukHH5bruHlXO2wwOrOifrL"
 
         const val TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite"
-
         val LABELS = arrayOf(
             "Ball",
             "Cube",
@@ -40,7 +38,7 @@ class Vision(hMap: HardwareMap) : AbstractComponent() {
     init {
         val parameters = VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId)
 
-        parameters.vuforiaLicenseKey = Vision.VUFORIA_KEY
+        parameters.vuforiaLicenseKey = VUFORIA_KEY
         parameters.cameraName = hMap.get(WebcamName::class.java, "Webcam 1")
 
         //  Instantiate the Vuforia engine
@@ -58,8 +56,8 @@ class Vision(hMap: HardwareMap) : AbstractComponent() {
         tfodParameters.inputSize = 320
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia)
         tfod.loadModelFromAsset(
-            Vision.TFOD_MODEL_ASSET,
-            *Vision.LABELS
+            TFOD_MODEL_ASSET,
+            *LABELS
         )
 
         tfod.activate()

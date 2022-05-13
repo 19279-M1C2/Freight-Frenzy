@@ -3,7 +3,7 @@
 //import com.amarcolini.joos.command.RobotOpMode
 //import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 //import org.firstinspires.ftc.teamcode.MainRobot
-//import org.firstinspires.ftc.teamcode.util.TelemetryUpdater
+//import org.firstinspires.ftc.teamcode.util.telemetry.TelemetryUpdater
 //
 //@TeleOp(name = "Arm Tester", group = "Test")
 //class ArmTester : RobotOpMode<MainRobot>() {

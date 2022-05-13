@@ -1,70 +1,92 @@
 package org.firstinspires.ftc.teamcode.components.arm
 
-import com.acmerobotics.dashboard.config.Config
 import com.amarcolini.joos.command.AbstractComponent
 import com.amarcolini.joos.command.Command
-import com.amarcolini.joos.command.SequentialCommand
+import com.amarcolini.joos.dashboard.JoosConfig
 import com.amarcolini.joos.hardware.Motor
 import com.qualcomm.robotcore.hardware.TouchSensor
+import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 
 class Arm(
     val spool: Motor,
     val tipper: Tipper,
-    val limitSwitch: TouchSensor,
+    val limitSwitch: TouchSensor?,
     val intake: Intake
 ) :
     AbstractComponent() {
-    @Config
-    object Arm {
-        @JvmField
+    @JoosConfig(name = "Arm")
+    companion object {
         var LIMIT_SWITCH_NAME = "limit-switch"
-
-        @JvmField
         var SPOOL_NAME = "spool"
+        var REVERSED = false
+        var BRAKE = true
 
-        @JvmField
-        var INTAKE_TICKS = 1
+        var FLOOR_TICKS = 0
+        var INTAKE_FIRST_TICKS = 0
+        var INTAKE_SECOND_TICKS = 0
+        var SHARED_TICKS = 0
+        var LOW_TICKS = 0
+        var MEDIUM_TICKS = 0
+        var HIGH_TICKS = 0
+
     }
 
-    enum class Position(val floorTicks: Int) {
-        FLOOR(1),
-        SHARED(2),
-        LOW(3),
-        MEDIUM(4),
-        HIGH(5),
+    enum class Position(val ticks: Int) {
+        FLOOR(FLOOR_TICKS),
+        SHARED(SHARED_TICKS),
+        LOW(LOW_TICKS),
+        MEDIUM(MEDIUM_TICKS),
+        HIGH(HIGH_TICKS),
+        INTAKE_FIRST(INTAKE_FIRST_TICKS),
+        INTAKE_SECOND(INTAKE_SECOND_TICKS)
     }
 
     init {
         subcomponents.add(tipper)
         subcomponents.add(spool)
         subcomponents.add(intake)
+
+        if (REVERSED) spool.reversed()
+        if (!BRAKE) spool.zeroPowerBehavior = Motor.ZeroPowerBehavior.FLOAT
+
+        RobotTelemetry.addTelemetry("arm pos") { spool.currentPosition }
     }
 
-    fun limitTipped() = limitSwitch.isPressed
+    fun limitTipped() = limitSwitch?.isPressed
 
-    fun setSpool(ticks: Int) = spool.goToPosition(ticks).runUntil { !spool.isBusy() || limitTipped() }
+    fun setSpool(ticks: Int) = spool.goToPosition(ticks).runUntil { !spool.isBusy() || limitTipped() == true }
+    fun setSpool(position: Position) = setSpool(position.ticks)
 
     fun goToPosition(position: Position): Command {
         // first check if we have to cross the intake ticks to get to our target
-        val crossing = Arm.INTAKE_TICKS in spool.currentPosition..position.floorTicks
+        val crossing =
+            if (spool.currentPosition < position.ticks)
+                Position.INTAKE_SECOND.ticks in spool.currentPosition..position.ticks else
+                Position.INTAKE_SECOND.ticks in position.ticks..spool.currentPosition
 
-        // if we are crossing, we need to go to the intake position first
-        return if (crossing) {
-            SequentialCommand(
-                true,
-                intake.getDefaultCommand(),
-                setSpool(Arm.INTAKE_TICKS),
-                tipper.tilt(),
-                setSpool(position.floorTicks)
-            )
+        // if we arent crossing, we move on. If we are going downards do one thing, otherwise do another
+        return if (!crossing) {
+            setSpool(position)
+        } else if (position.ticks < spool.currentPosition) {
+            tipper.setPosition(Tipper.TipperPosition.SECOND_TILT) then
+                    setSpool(Position.INTAKE_SECOND) then
+                    tipper.setPosition(Tipper.TipperPosition.FIRST_TILT) then
+                    setSpool(Position.INTAKE_FIRST) then
+                    tipper.setPosition(Tipper.TipperPosition.UNTIPPED) then
+                    setSpool(position)
         } else {
-            setSpool(position.floorTicks)
+            tipper.setPosition(Tipper.TipperPosition.UNTIPPED) then
+                    setSpool(Position.INTAKE_FIRST) then
+                    tipper.setPosition(Tipper.TipperPosition.FIRST_TILT) then
+                    setSpool(Position.INTAKE_SECOND) then
+                    tipper.setPosition(Tipper.TipperPosition.SECOND_TILT) then
+                    setSpool(position)
         }
     }
 
     // mannual drive, ability to tilt tipper and move arm
     fun drive(power: Double) {
-        if (limitTipped()) spool.power = 0.0
+        if (limitTipped() == true && power > 0) spool.power = 0.0
         else spool.power = power
     }
 }
