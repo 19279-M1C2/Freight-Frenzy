@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.components.arm
 
+import com.acmerobotics.dashboard.config.Config
 import com.amarcolini.joos.command.AbstractComponent
 import com.amarcolini.joos.command.Command
-import com.amarcolini.joos.dashboard.JoosConfig
 import com.amarcolini.joos.hardware.Motor
 import com.qualcomm.robotcore.hardware.TouchSensor
 import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
@@ -14,11 +14,11 @@ class Arm(
     val intake: Intake
 ) :
     AbstractComponent() {
-    @JoosConfig(name = "Arm")
+    @Config(value = "Arm")
     companion object {
         var LIMIT_SWITCH_NAME = "limit-switch"
         var SPOOL_NAME = "spool"
-        var REVERSED = false
+        var REVERSED = true
         var BRAKE = true
 
         var FLOOR_TICKS = 0
@@ -27,7 +27,7 @@ class Arm(
         var SHARED_TICKS = 0
         var LOW_TICKS = 0
         var MEDIUM_TICKS = 0
-        var HIGH_TICKS = 0
+        var HIGH_TICKS = 1900
 
     }
 

@@ -42,7 +42,7 @@ class MainTeleOp : RobotOpMode<MainRobot>() {
                 driveVector = driveVector.rotated(it.heading)
             }
 
-            val drivePose = Pose2d(driveVector, rightStickX.rad)
+            val drivePose = Pose2d(driveVector, rightStickX.rad * 2.0)
 
             return drivePose * if (slowMode) SLOW_SPEED else FAST_SPEED
         }
@@ -50,27 +50,33 @@ class MainTeleOp : RobotOpMode<MainRobot>() {
     override fun preStart() {
         val drive = robot.drive
         val arm = robot.arm
-
+//
         val driver =
             Command.of {
                 drive.setDrivePower(drivePose)
-            }.requires(drive).onEnd { drive.setDrivePower(Pose2d(0.0, 0.0, 0.0)) }
+            }.onEnd { drive.setDrivePower(Pose2d(0.0, 0.0, 0.0)) }
                 .runUntil { false }
-
-//        // tipper
-        robot.map({ robot.gamepad.p2.square.justActivated }, arm.tipper.setPosition(Tipper.TipperPosition.UNTIPPED))
-        robot.map({ robot.gamepad.p2.triangle.justActivated }, arm.tipper.setPosition(Tipper.TipperPosition.FIRST_TILT))
-        robot.map({ robot.gamepad.p2.square.justActivated }, arm.tipper.setPosition(Tipper.TipperPosition.SECOND_TILT))
-        robot.map({ robot.gamepad.p2.cross.justActivated }, arm.tipper.setPosition(Tipper.TipperPosition.TIPPED))
+//
+        // tipper
+        robot.map({ robot.gamepad.p1.square.justActivated }, arm.tipper.setPosition(Tipper.TipperPosition.UNTIPPED))
+        robot.map({ robot.gamepad.p1.triangle.justActivated }, arm.tipper.setPosition(Tipper.TipperPosition.FIRST_TILT))
+        robot.map({ robot.gamepad.p1.square.justActivated }, arm.tipper.setPosition(Tipper.TipperPosition.SECOND_TILT))
+        robot.map({ robot.gamepad.p1.cross.justActivated }, arm.tipper.setPosition(Tipper.TipperPosition.TIPPED))
 //        // intake
-        robot.map({ robot.gamepad.p2.right_bumper.isActive }, arm.intake.goForwards)
-        robot.map({ robot.gamepad.p2.left_bumper.isActive }, arm.intake.goBackwards)
+        robot.map({ robot.gamepad.p1.right_bumper.isActive }, arm.intake.goForwards)
+        robot.map({ robot.gamepad.p1.left_bumper.isActive }, arm.intake.goBackwards)
 
-        val armer = Command.of {
-            val armPower = robot.gamepad.p2.getLeftStick().y
-            arm.drive(armPower)
-        }.requires(arm.spool).runUntil { false }
-
-        robot.schedule(driver, armer)
+        // if they are both off then lets set speed to 0
+        robot.map(
+            { !robot.gamepad.p1.right_bumper.isActive && !robot.gamepad.p1.left_bumper.isActive },
+            arm.intake.getDefaultCommand()
+        )
+//
+//        val armer = Command.of {
+//            val armPower = robot.gamepad.p1.getLeftStick().y
+//            arm.drive(armPower)
+//        }.runUntil { false }
+//
+        robot.schedule(driver)
     }
 }

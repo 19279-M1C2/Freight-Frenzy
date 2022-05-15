@@ -1,20 +1,21 @@
 package org.firstinspires.ftc.teamcode.components.arm
 
+import com.acmerobotics.dashboard.config.Config
 import com.amarcolini.joos.command.AbstractComponent
 import com.amarcolini.joos.command.BasicCommand
 import com.amarcolini.joos.command.Command
 import com.amarcolini.joos.command.FunctionalCommand
-import com.amarcolini.joos.dashboard.JoosConfig
 import com.amarcolini.joos.hardware.Motor
 import com.amarcolini.joos.util.NanoClock
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_RPM
 import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_TPR
+import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 
 class Intake(private val motorEx: DcMotorEx, rpm: Double = CORE_HEX_RPM, tpr: Double = CORE_HEX_TPR) :
     AbstractComponent() {
-    @JoosConfig(name = "Intake")
+    @Config(value = "Intake")
     companion object {
         var NAME = "intake"
         var REVERSED = false
@@ -29,6 +30,10 @@ class Intake(private val motorEx: DcMotorEx, rpm: Double = CORE_HEX_RPM, tpr: Do
         subcomponents.add(motor)
         motor.zeroPowerBehavior = Motor.ZeroPowerBehavior.FLOAT
         if (REVERSED) motor.reversed()
+
+        RobotTelemetry.addTelemetry("current") {
+            motorEx.getCurrent(CurrentUnit.MILLIAMPS)
+        }
     }
 
 
@@ -40,8 +45,8 @@ class Intake(private val motorEx: DcMotorEx, rpm: Double = CORE_HEX_RPM, tpr: Do
         motor.power = power
     }
 
-    val goForwards = Command.of { setPower(0.5) }.requires(this)
-    val goBackwards = Command.of { setPower(-0.5) }.requires(this)
+    val goForwards = Command.of { setPower(0.5) }
+    val goBackwards = Command.of { setPower(-0.5) }
 
     fun cargoInside() = motorEx.getCurrent(CurrentUnit.MILLIAMPS) > CURRENT_THRESHOLD
 

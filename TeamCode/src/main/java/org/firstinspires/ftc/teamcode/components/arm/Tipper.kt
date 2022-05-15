@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.components.arm
 
+import com.acmerobotics.dashboard.config.Config
 import com.amarcolini.joos.command.AbstractComponent
-import com.amarcolini.joos.dashboard.JoosConfig
 import com.amarcolini.joos.hardware.Servo
 import org.firstinspires.ftc.teamcode.Constants.SERVO_RPM
 import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 
 class Tipper(private val tipper: Servo) : AbstractComponent() {
-    @JoosConfig(name = "Tipper")
+    @Config(value = "Tipper")
     companion object {
         var TIPPER_NAME = "tipper"
 

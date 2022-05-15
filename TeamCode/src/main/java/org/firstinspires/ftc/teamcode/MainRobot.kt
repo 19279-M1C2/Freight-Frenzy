@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_A_NAME
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_B_NAME
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_A_NAME
 import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_B_NAME
+import org.firstinspires.ftc.teamcode.Constants.HDHex40_MAX_RPM
+import org.firstinspires.ftc.teamcode.Constants.HDHex40_TICKS
 import org.firstinspires.ftc.teamcode.Constants.Module.GEAR_RATIO
 import org.firstinspires.ftc.teamcode.Constants.Module.TICKS_PER_REV
 import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
@@ -100,7 +102,7 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
     }
 
     private fun initArm() {
-        val spool = Motor(hMap, Arm.SPOOL_NAME, CORE_HEX_RPM, CORE_HEX_TPR)
+        val spool = Motor(hMap, Arm.SPOOL_NAME, HDHex40_MAX_RPM, HDHex40_TICKS)
         val intake = Intake(hMap.get(DcMotorEx::class.java, Intake.NAME), CORE_HEX_RPM, CORE_HEX_TPR)
 
         spool.resetEncoder()
