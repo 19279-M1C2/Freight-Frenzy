@@ -1,15 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
 import com.amarcolini.joos.command.RobotOpMode
-import com.amarcolini.joos.command.SequentialCommand
-import com.amarcolini.joos.command.WaitCommand
-import com.amarcolini.joos.geometry.Pose2d
-import com.amarcolini.joos.util.deg
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.MainRobot
 import org.firstinspires.ftc.teamcode.components.Vision
-import org.firstinspires.ftc.teamcode.components.arm.Arm
-import org.firstinspires.ftc.teamcode.components.arm.Tipper
 import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 import org.firstinspires.ftc.teamcode.util.toLevel
 
@@ -29,11 +23,13 @@ class FreightSideAuto : RobotOpMode<MainRobot>() {
         // TODO figure out timing here. Do we do with math? Do we hardcode cycles?
 
 //        val intakeCommand = robot.arm.intake.intake()
-        val (loc, coord) = vision.getPosition()
+        for (i in 0..5) {
+            val (loc, coord) = vision.getPosition()
 
-        val level = loc.toLevel()
-        RobotTelemetry.addLine("Height: $level")
-        RobotTelemetry.addLine("Coord: $coord")
+            val level = loc.toLevel()
+            RobotTelemetry.addLine("Height: $level")
+            RobotTelemetry.addLine("Coord: $coord")
+        }
 
 //        val dropCommand =
 //            SequentialCommand(

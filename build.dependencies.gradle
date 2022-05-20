@@ -32,8 +32,11 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'org.firstinspires.ftc:gameAssets-FreightFrenzy:1.0.0'
 
-    implementation 'com.github.amarcolini.joos:command:0.4.5-alpha'
-    implementation 'com.github.amarcolini.joos:navigation:0.4.5-alpha'
+//    implementation 'com.github.amarcolini.joos:command:949088beae'
+//    implementation 'com.github.amarcolini.joos:navigation:949088beae'
+
+    implementation 'com.github.19279-M1C2.joos:command:317ee2156f'
+    implementation 'com.github.19279-M1C2.joos:navigation:317ee2156f'
 
     implementation 'org.apache.commons:commons-math3:3.6.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

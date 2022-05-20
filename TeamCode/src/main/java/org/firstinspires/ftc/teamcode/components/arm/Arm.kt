@@ -16,29 +16,56 @@ class Arm(
     AbstractComponent() {
     @Config(value = "Arm")
     companion object {
+        @JvmField
         var LIMIT_SWITCH_NAME = "limit-switch"
+
+        @JvmField
         var SPOOL_NAME = "spool"
+
+        @JvmField
         var REVERSED = true
+
+        @JvmField
         var BRAKE = true
 
+        @JvmField
         var FLOOR_TICKS = 0
-        var INTAKE_FIRST_TICKS = 0
-        var INTAKE_SECOND_TICKS = 0
+
+        @JvmField
+        var INTAKE_TICKS = 0
+
+        @JvmField
         var SHARED_TICKS = 0
+
+        @JvmField
         var LOW_TICKS = 0
+
+        @JvmField
         var MEDIUM_TICKS = 0
+
+        @JvmField
         var HIGH_TICKS = 1900
+
 
     }
 
-    enum class Position(val ticks: Int) {
-        FLOOR(FLOOR_TICKS),
-        SHARED(SHARED_TICKS),
-        LOW(LOW_TICKS),
-        MEDIUM(MEDIUM_TICKS),
-        HIGH(HIGH_TICKS),
-        INTAKE_FIRST(INTAKE_FIRST_TICKS),
-        INTAKE_SECOND(INTAKE_SECOND_TICKS)
+    enum class Position {
+        FLOOR,
+        SHARED,
+        LOW,
+        MEDIUM,
+        HIGH,
+        INTAKE;
+
+        val ticks: Int
+            get() = when (this) {
+                FLOOR -> FLOOR_TICKS
+                SHARED -> SHARED_TICKS
+                LOW -> LOW_TICKS
+                MEDIUM -> MEDIUM_TICKS
+                HIGH -> HIGH_TICKS
+                INTAKE -> INTAKE_TICKS
+            }
     }
 
     init {
@@ -61,25 +88,21 @@ class Arm(
         // first check if we have to cross the intake ticks to get to our target
         val crossing =
             if (spool.currentPosition < position.ticks)
-                Position.INTAKE_SECOND.ticks in spool.currentPosition..position.ticks else
-                Position.INTAKE_SECOND.ticks in position.ticks..spool.currentPosition
+                Position.INTAKE.ticks in spool.currentPosition..position.ticks else
+                Position.INTAKE.ticks in position.ticks..spool.currentPosition
 
         // if we arent crossing, we move on. If we are going downards do one thing, otherwise do another
         return if (!crossing) {
             setSpool(position)
         } else if (position.ticks < spool.currentPosition) {
-            tipper.setPosition(Tipper.TipperPosition.SECOND_TILT) then
-                    setSpool(Position.INTAKE_SECOND) then
-                    tipper.setPosition(Tipper.TipperPosition.FIRST_TILT) then
-                    setSpool(Position.INTAKE_FIRST) then
+            tipper.setPosition(Tipper.TipperPosition.TILT) then
+                    setSpool(Position.INTAKE) then
                     tipper.setPosition(Tipper.TipperPosition.UNTIPPED) then
                     setSpool(position)
         } else {
             tipper.setPosition(Tipper.TipperPosition.UNTIPPED) then
-                    setSpool(Position.INTAKE_FIRST) then
-                    tipper.setPosition(Tipper.TipperPosition.FIRST_TILT) then
-                    setSpool(Position.INTAKE_SECOND) then
-                    tipper.setPosition(Tipper.TipperPosition.SECOND_TILT) then
+                    setSpool(Position.INTAKE) then
+                    tipper.setPosition(Tipper.TipperPosition.TILT) then
                     setSpool(position)
         }
     }

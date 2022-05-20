@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
-import org.firstinspires.ftc.teamcode.R
 import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 
 
@@ -19,7 +18,7 @@ class Vision(hMap: HardwareMap) : AbstractComponent() {
             "AQfsT7f/////AAABmUob5YNsRUaTsw8OCAwh8U0CkBoG6Niyn6ObvMlbI5xX/mYd1kc2pIXrQ+m6UEf/rZAbLSs4vY3PJe5VfIqPXMBZxEuBI8uVrRcPjWs60w8zBRmwf1z3akCWiwvMu3QNTei9oWkZ4hAWILWYLq2QEBlPjmGmEwnTM6VmJAPVSXRD4ZtBdZ7fKcrxlSwdMz1bZiEZZJEdQHTqqXY31zH3cvu9TOZxvYzFm94/JryfQSnhqaS2qOYen02JvqmDsWN8JpTeUCiDLOyX02femfeiZffIvu2zntQyoNUevcDYPptjYYlBGSDP6oTT9iOrvqf4tWyJeeO+kEMqt2Kd4KnEDMukHH5bruHlXO2wwOrOifrL"
 
         const val TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite"
-        val LABELS = arrayOf(
+        val LABELS = listOf(
             "Ball",
             "Cube",
             "Duck",
@@ -37,7 +36,7 @@ class Vision(hMap: HardwareMap) : AbstractComponent() {
     private val tfod: TFObjectDetector
 
     init {
-        val parameters = VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId)
+        val parameters = VuforiaLocalizer.Parameters()
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY
         parameters.cameraName = hMap.get(WebcamName::class.java, "Webcam 1")
@@ -59,7 +58,7 @@ class Vision(hMap: HardwareMap) : AbstractComponent() {
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia)
         tfod.loadModelFromAsset(
             TFOD_MODEL_ASSET,
-            *LABELS
+            "Ball", "Cube", "Duck", "Marker"
         )
 
         tfod.activate()

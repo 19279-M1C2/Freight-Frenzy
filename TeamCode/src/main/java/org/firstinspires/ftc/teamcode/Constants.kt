@@ -3,93 +3,109 @@ package org.firstinspires.ftc.teamcode
 import com.acmerobotics.dashboard.config.Config
 import com.amarcolini.joos.control.FeedforwardCoefficients
 import com.amarcolini.joos.control.PIDCoefficients
+import com.amarcolini.joos.hardware.Motor
 import com.amarcolini.joos.trajectory.config.DiffSwerveConstraints
+import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.components.DummyMotor
 import org.firstinspires.ftc.teamcode.util.Inch
 import kotlin.math.PI
 
+
+/**
+ * stick any constants that aren't associated with a specific subsystem here
+ * [Drive] is an exception as we don't actually have a drive class. same with [Coefficients]
+ */
 @Config
-object Constants {
-    // stick any constants that aren't associated with a specific subsystem here
-
-    // all distances in M
-
-    @JvmField
+object Motors {
     var ULTRAPLANETARY_TICKS = 28.0
-
-    @JvmField
     var ULTRAPLANETARY_MAX_RPM = 6000.0
 
-    @JvmField
-    var HDHex40_TICKS = 28.0 * 40
+    var HD_HEX40_TICKS = ULTRAPLANETARY_TICKS * 40.0
+    var HD_HEX40_MAX_RPM = 150.0
 
-    @JvmField
-    var HDHex40_MAX_RPM = 150.0
-
-    // A spins in the direction of the wheel, B in the opposite direction
-    @JvmField
-    var DRIVE_LEFT_A_NAME = "drive-left-a"
-
-    @JvmField
-    var DRIVE_LEFT_B_NAME = "drive-left-b"
-
-    @JvmField
-    var DRIVE_RIGHT_A_NAME = "drive-right-a"
-
-    @JvmField
-    var DRIVE_RIGHT_B_NAME = "drive-right-b"
-
-    @JvmField
     var CORE_HEX_RPM = 150.0
-
-    @JvmField
     var CORE_HEX_TPR = 1120.0
 
-    @JvmField
     var SERVO_RPM = 150.0
 
-    @Config
-    object Module {
-        // From Crown Rev to drive wheel
-        var GEAR_RATIO = 4.0
+    private fun driveMotorFactory(name: String, hMap: HardwareMap) =
+        Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, Drive.TICKS_PER_REV, Drive.WHEEL_RADIUS, Drive.GEAR_RATIO)
 
-        // From motor to module rev
-        @JvmField
-        var TICKS_PER_REV = 835.0
+    private fun ultraMotorFactory(name: String, hMap: HardwareMap) =
+        Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
 
-        @JvmField
-        var TRACK_WIDTH: Inch = 16.0
+    fun dummyDriveMotorFactory() = Motor(
+        DummyMotor(ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
+        ULTRAPLANETARY_MAX_RPM,
+        ULTRAPLANETARY_TICKS, Drive.WHEEL_RADIUS, Drive.GEAR_RATIO
+    )
 
-        @JvmField
-        var WHEEL_RADIUS: Inch = 2.5 / 2
+    private fun coreHexMotorFactory(name: String, hMap: HardwareMap) =
+        Motor(hMap, name, CORE_HEX_RPM, CORE_HEX_TPR)
 
-        @JvmField
-        var SLOW_SPEED = 0.1
+    private fun hdHex40MotorFactory(name: String, hMap: HardwareMap) =
+        Motor(hMap, name, HD_HEX40_MAX_RPM, HD_HEX40_TICKS)
 
-        @JvmField
-        var FAST_SPEED = 0.3
+    enum class MotorType {
+        ULTRAPLANETARY,
+        CORE_HEX,
+        HD_HEX_40,
+        DRIVE,
     }
 
-    @Config
-    object Coefficients {
+    fun motorFactory(type: MotorType, name: String, hMap: HardwareMap) =
+        when (type) {
+            MotorType.ULTRAPLANETARY -> ultraMotorFactory(name, hMap)
+            MotorType.CORE_HEX -> coreHexMotorFactory(name, hMap)
+            MotorType.HD_HEX_40 -> hdHex40MotorFactory(name, hMap)
+            MotorType.DRIVE -> driveMotorFactory(name, hMap)
+        }
+}
 
-        @JvmField
-        var MODULE_PID = PIDCoefficients(70.0, 0.0, 0.9)
+@Config
+object Drive {
+    // a drives in direction of robot
+    var DRIVE_LEFT_A_NAME = "drive-left-a"
+    var DRIVE_LEFT_B_NAME = "drive-left-b"
+    var DRIVE_RIGHT_A_NAME = "drive-right-a"
+    var DRIVE_RIGHT_B_NAME = "drive-right-b"
 
-        @JvmField
-        var TRAJECTORY_CONSTRAINTS = DiffSwerveConstraints(trackWidth = Module.TRACK_WIDTH)
+    var GEAR_RATIO = 4.0 // Crown to wheel
+    var TICKS_PER_REV = 835.0 // Motor to crown
 
-        @JvmField
-        var TRANSLATIONAL_PID = PIDCoefficients(0.5, 0.0, 0.5)
+    var TRACK_WIDTH: Inch = 16.0
+    var WHEEL_RADIUS: Inch = 2.5 / 2
 
-        @JvmField
-        var HEADING_PID = PIDCoefficients(3.0, 0.0, 0.5)
+    @JvmField
+    var SLOW_SPEED = 0.5
 
+    @JvmField
+    var FAST_SPEED = 1.0
+}
 
-        @JvmField
-        var FEED_FORWARD_COEFFICIENTS = FeedforwardCoefficients(
-            1 / (ULTRAPLANETARY_MAX_RPM / 60 * Module.GEAR_RATIO * Module.WHEEL_RADIUS * PI),
-            0.0,
-            0.0
-        )
-    }
+@Config
+object Coefficients {
+    @JvmField
+    var MODULE_PID = PIDCoefficients(70.0, 0.0, 0.9)
+
+    @JvmField
+    var TRAJECTORY_CONSTRAINTS = DiffSwerveConstraints(
+        trackWidth = 1.0,
+        maxAccel = 5.0,
+        maxVel = 5.0,
+        maxGearVel = 100.0 * 0.3
+    )
+
+    @JvmField
+    var TRANSLATIONAL_PID = PIDCoefficients(7.0, 0.0, 0.5)
+
+    @JvmField
+    var HEADING_PID = PIDCoefficients(10.0, 0.0, 0.5)
+
+    @JvmField
+    var FEED_FORWARD_COEFFICIENTS = FeedforwardCoefficients(
+        1 / (Motors.ULTRAPLANETARY_MAX_RPM / 60 * Drive.GEAR_RATIO * Drive.WHEEL_RADIUS * PI),
+        0.0,
+        0.0
+    )
 }

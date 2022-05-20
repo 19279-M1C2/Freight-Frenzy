@@ -2,23 +2,39 @@ package org.firstinspires.ftc.teamcode.components.arm
 
 import com.acmerobotics.dashboard.config.Config
 import com.amarcolini.joos.command.AbstractComponent
+import com.amarcolini.joos.command.Command
 import com.amarcolini.joos.hardware.Servo
-import org.firstinspires.ftc.teamcode.Constants.SERVO_RPM
+import org.firstinspires.ftc.teamcode.components.arm.Tipper.Tipper.TILT_TICKS
+import org.firstinspires.ftc.teamcode.components.arm.Tipper.Tipper.TIPPED_TICKS
+import org.firstinspires.ftc.teamcode.components.arm.Tipper.Tipper.UNTTIPED_TICKS
 import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 
-class Tipper(private val tipper: Servo) : AbstractComponent() {
+class Tipper(val tipper: Servo) : AbstractComponent() {
     @Config(value = "Tipper")
-    companion object {
+    object Tipper {
         var TIPPER_NAME = "tipper"
 
-        var UNTTIPED_TICKS = 0.0
-        var TIPPED_TICKS = 1.0
-        var FIRST_TILT_TICKS = 0.2
-        var SECOND_TILT_TICKS = 0.3
+        @JvmField
+        var UNTTIPED_TICKS = 0.95
+
+        @JvmField
+        var TIPPED_TICKS = 0.4
+
+        @JvmField
+        var TILT_TICKS = 0.8
     }
 
-    enum class TipperPosition(val ticks: Double) {
-        FIRST_TILT(FIRST_TILT_TICKS), SECOND_TILT(SECOND_TILT_TICKS), UNTIPPED(UNTTIPED_TICKS), TIPPED(TIPPED_TICKS)
+    enum class TipperPosition {
+        TILT, UNTIPPED, TIPPED;
+
+        val ticks: Double
+            get() {
+                return when (this) {
+                    TILT -> TILT_TICKS
+                    UNTIPPED -> UNTTIPED_TICKS
+                    TIPPED -> TIPPED_TICKS
+                }
+            }
     }
 
     init {
@@ -27,12 +43,14 @@ class Tipper(private val tipper: Servo) : AbstractComponent() {
         RobotTelemetry.addTelemetry("tipper pos") { tipper.position }
     }
 
-    fun setPosition(position: Double) = tipper.goToPosition(position, SERVO_RPM)
+    fun setPosition(position: Double) = Command.of {
+        tipper.position = position
+    }
 
     fun setPosition(position: TipperPosition) = setPosition(position.ticks)
 
     val tipped
-        get() = tipper.position > TipperPosition.SECOND_TILT.ticks
+        get() = tipper.position > TILT_TICKS
 
-    fun toggleTip() = if (tipped) setPosition(TipperPosition.SECOND_TILT) else setPosition(TipperPosition.TIPPED)
+    fun toggleTip() = if (tipped) setPosition(TipperPosition.TILT) else setPosition(TipperPosition.TIPPED)
 }

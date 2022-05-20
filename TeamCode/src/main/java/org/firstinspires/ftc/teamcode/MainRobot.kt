@@ -3,34 +3,27 @@ package org.firstinspires.ftc.teamcode
 import com.amarcolini.joos.command.Robot
 import com.amarcolini.joos.command.RobotOpMode
 import com.amarcolini.joos.hardware.Imu
-import com.amarcolini.joos.hardware.Motor
 import com.amarcolini.joos.hardware.Servo
 import com.amarcolini.joos.hardware.drive.DiffSwerveDrive
 import com.amarcolini.joos.kinematics.DiffSwerveKinematics
 import com.amarcolini.joos.util.wrap
 import com.qualcomm.robotcore.hardware.DcMotorEx
-import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_RPM
-import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_TPR
-import org.firstinspires.ftc.teamcode.Constants.Coefficients.HEADING_PID
-import org.firstinspires.ftc.teamcode.Constants.Coefficients.MODULE_PID
-import org.firstinspires.ftc.teamcode.Constants.Coefficients.TRAJECTORY_CONSTRAINTS
-import org.firstinspires.ftc.teamcode.Constants.Coefficients.TRANSLATIONAL_PID
-import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_A_NAME
-import org.firstinspires.ftc.teamcode.Constants.DRIVE_LEFT_B_NAME
-import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_A_NAME
-import org.firstinspires.ftc.teamcode.Constants.DRIVE_RIGHT_B_NAME
-import org.firstinspires.ftc.teamcode.Constants.HDHex40_MAX_RPM
-import org.firstinspires.ftc.teamcode.Constants.HDHex40_TICKS
-import org.firstinspires.ftc.teamcode.Constants.Module.GEAR_RATIO
-import org.firstinspires.ftc.teamcode.Constants.Module.TICKS_PER_REV
-import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
-import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_MAX_RPM
-import org.firstinspires.ftc.teamcode.Constants.ULTRAPLANETARY_TICKS
-import org.firstinspires.ftc.teamcode.components.DummyMotor
+import org.firstinspires.ftc.teamcode.Coefficients.HEADING_PID
+import org.firstinspires.ftc.teamcode.Coefficients.MODULE_PID
+import org.firstinspires.ftc.teamcode.Coefficients.TRAJECTORY_CONSTRAINTS
+import org.firstinspires.ftc.teamcode.Coefficients.TRANSLATIONAL_PID
+import org.firstinspires.ftc.teamcode.Drive.DRIVE_LEFT_A_NAME
+import org.firstinspires.ftc.teamcode.Drive.DRIVE_LEFT_B_NAME
+import org.firstinspires.ftc.teamcode.Drive.DRIVE_RIGHT_A_NAME
+import org.firstinspires.ftc.teamcode.Drive.DRIVE_RIGHT_B_NAME
+import org.firstinspires.ftc.teamcode.Motors.CORE_HEX_RPM
+import org.firstinspires.ftc.teamcode.Motors.CORE_HEX_TPR
+import org.firstinspires.ftc.teamcode.Motors.motorFactory
 import org.firstinspires.ftc.teamcode.components.arm.Arm
 import org.firstinspires.ftc.teamcode.components.arm.Intake
 import org.firstinspires.ftc.teamcode.components.arm.Tipper
-import org.firstinspires.ftc.teamcode.components.arm.Tipper.Companion.TIPPER_NAME
+
+import org.firstinspires.ftc.teamcode.components.arm.Tipper.Tipper.TIPPER_NAME
 import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 import kotlin.math.PI
 
@@ -40,23 +33,12 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
     var imu: Imu? = null
     lateinit var arm: Arm
 
-    private fun driveMotorFactory(name: String): Motor =
-        Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, TICKS_PER_REV, WHEEL_RADIUS, GEAR_RATIO)
-
-    private fun motorFactory(name: String): Motor = Motor(hMap, name, ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS)
-
-    private fun dummyDriveMotorFactory() = Motor(
-        DummyMotor(ULTRAPLANETARY_MAX_RPM, ULTRAPLANETARY_TICKS),
-        ULTRAPLANETARY_MAX_RPM,
-        ULTRAPLANETARY_TICKS, WHEEL_RADIUS, GEAR_RATIO
-    )
-
     private fun initDrive() {
         initImu()
-        val driveLeftA = driveMotorFactory(DRIVE_LEFT_A_NAME)
-        val driveLeftB = driveMotorFactory(DRIVE_LEFT_B_NAME)
-        val driveRightA = driveMotorFactory(DRIVE_RIGHT_A_NAME)
-        val driveRightB = driveMotorFactory(DRIVE_RIGHT_B_NAME)
+        val driveLeftA = motorFactory(Motors.MotorType.DRIVE, DRIVE_LEFT_A_NAME, hMap)
+        val driveLeftB = motorFactory(Motors.MotorType.DRIVE, DRIVE_LEFT_B_NAME, hMap)
+        val driveRightA = motorFactory(Motors.MotorType.DRIVE, DRIVE_RIGHT_A_NAME, hMap)
+        val driveRightB = motorFactory(Motors.MotorType.DRIVE, DRIVE_RIGHT_B_NAME, hMap)
 
         drive = DiffSwerveDrive(
             driveLeftA to driveLeftB,
@@ -67,10 +49,6 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
             TRANSLATIONAL_PID,
             HEADING_PID
         )
-
-        drive.motors.motors.forEach {
-            it.feedforwardCoefficients
-        }
 
         RobotTelemetry.addTelemetry(
             "left" to {
@@ -102,7 +80,7 @@ class MainRobot(val opMode: RobotOpMode<MainRobot>) : Robot(opMode) {
     }
 
     private fun initArm() {
-        val spool = Motor(hMap, Arm.SPOOL_NAME, HDHex40_MAX_RPM, HDHex40_TICKS)
+        val spool = motorFactory(Motors.MotorType.HD_HEX_40, Arm.SPOOL_NAME, hMap)
         val intake = Intake(hMap.get(DcMotorEx::class.java, Intake.NAME), CORE_HEX_RPM, CORE_HEX_TPR)
 
         spool.resetEncoder()

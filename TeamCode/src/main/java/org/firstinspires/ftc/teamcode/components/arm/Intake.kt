@@ -9,8 +9,8 @@ import com.amarcolini.joos.hardware.Motor
 import com.amarcolini.joos.util.NanoClock
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
-import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_RPM
-import org.firstinspires.ftc.teamcode.Constants.CORE_HEX_TPR
+import org.firstinspires.ftc.teamcode.Motors.CORE_HEX_TPR
+import org.firstinspires.ftc.teamcode.Motors.CORE_HEX_RPM
 import org.firstinspires.ftc.teamcode.util.telemetry.RobotTelemetry
 
 class Intake(private val motorEx: DcMotorEx, rpm: Double = CORE_HEX_RPM, tpr: Double = CORE_HEX_TPR) :
@@ -45,8 +45,8 @@ class Intake(private val motorEx: DcMotorEx, rpm: Double = CORE_HEX_RPM, tpr: Do
         motor.power = power
     }
 
-    val goForwards = Command.of { setPower(0.5) }
-    val goBackwards = Command.of { setPower(-0.5) }
+    val goForwards = Command.of { setPower(0.8) }
+    val goBackwards = Command.of { setPower(-0.8) }
 
     fun cargoInside() = motorEx.getCurrent(CurrentUnit.MILLIAMPS) > CURRENT_THRESHOLD
 

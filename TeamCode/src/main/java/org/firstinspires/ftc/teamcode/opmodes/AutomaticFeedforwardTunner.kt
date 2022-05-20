@@ -5,8 +5,8 @@ import com.amarcolini.joos.geometry.Pose2d
 import com.amarcolini.joos.util.NanoClock
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.internal.system.Misc
-import org.firstinspires.ftc.teamcode.Constants.Module.GEAR_RATIO
-import org.firstinspires.ftc.teamcode.Constants.Module.WHEEL_RADIUS
+import org.firstinspires.ftc.teamcode.Drive.GEAR_RATIO
+import org.firstinspires.ftc.teamcode.Drive.WHEEL_RADIUS
 import org.firstinspires.ftc.teamcode.MainRobot
 import org.firstinspires.ftc.teamcode.util.Inch
 import org.firstinspires.ftc.teamcode.util.LoggingUtil.getLogFile
